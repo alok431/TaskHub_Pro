@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaskHub Pro - Telegram Earn Platform</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-top">
+                <div class="logo">💎 TaskHub Pro</div>
+                <div class="tier-badge" id="user-level">LEVEL 1</div>
+            </div>
+
+            <div class="header-stats">
+                <div class="stat-mini">
+                    <div class="stat-value" id="stat-balance">$0.00</div>
+                    <div class="stat-label">Balance</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-value" id="stat-completed">0</div>
+                    <div class="stat-label">Completions</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-value" id="stat-streak">1</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- TAB BAR -->
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab(event, 'home')">🏠 Home</button>
+                <button class="tab-btn" onclick="switchTab(event, 'tasks')">📋 Tasks</button>
+                <button class="tab-btn" onclick="switchTab(event, 'surveys')">📝 Surveys</button>
+                <button class="tab-btn" onclick="switchTab(event, 'refer')">👥 Refer</button>
+                <button class="tab-btn" onclick="switchTab(event, 'achievements')">⭐ Rewards</button>
+                <button class="tab-btn" onclick="switchTab(event, 'wallet')">💳 Wallet</button>
+            </div>
+
+            <!-- HOME TAB -->
+            <div id="home" class="content active">
+                <!-- DAILY SPIN -->
+                <div class="spin-card">
+                    <div class="spin-title">🎡 Daily Lucky Spin</div>
+                    <div class="spin-container">
+                        <div class="spin-wheel" id="wheel-element">🎰</div>
+                    </div>
+                    <button class="btn-secondary" id="spin-btn" onclick="triggerSpin()">Spin Free (Loading...) →</button>
+                </div>
+
+                <!-- STREAK BONUS -->
+                <div class="streak-card">
+                    <div class="streak-info">
+                        <h3>🔥 Login Streak</h3>
+                        <p>Claim daily bonus to extend</p>
+                    </div>
+                    <div class="streak-right">
+                        <div class="streak-number" id="streak-display">1</div>
+                        <button class="btn-primary-mini" id="claim-streak-btn" onclick="claimDailyStreak()">Claim</button>
+                    </div>
+                </div>
+
+                <div class="section-title">⚡ Featured Tasks</div>
+
+                <div class="featured-card" id="featured-task-container">
+                    <div class="featured-title">🎯 Flash Deal - Limited Time</div>
+                    <div class="featured-desc">Complete 3 offerwall tasks in next 4 hours</div>
+                    <div class="task-reward" id="featured-task-reward">Earn $5.25</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%;"></div>
+                    </div>
+                    <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 6px;">⏱️ 3 hours 42 minutes left</div>
+                    <button class="btn-primary" onclick="startFeaturedTask()">View Tasks →</button>
+                </div>
+
+                <div class="section-title">💰 Quick Earn</div>
+                <div id="quick-earn-container">
+                    <!-- Tasks will be loaded dynamically -->
+                    <div class="loading-placeholder">Loading tasks...</div>
+                </div>
+
+                <div class="section-title">🏆 Weekly Leaderboard (Prize Pool: $500)</div>
+                <div id="leaderboard-container">
+                    <!-- Leaderboard will be loaded dynamically -->
+                    <div class="loading-placeholder">Loading leaderboard...</div>
+                </div>
+            </div>
+
+            <!-- TASKS TAB -->
+            <div id="tasks" class="content">
+                <div class="section-title">🎯 Available Partner Tasks</div>
+                <div id="partner-tasks-container">
+                    <!-- Tasks will be loaded dynamically -->
+                    <div class="loading-placeholder">Loading partner tasks...</div>
+                </div>
+            </div>
+
+            <!-- SURVEYS TAB (NEW SECTION) -->
+            <div id="surveys" class="content">
+                <div class="section-title">📊 CPX Research Surveys</div>
+                <div id="surveys-list-container">
+                    <!-- Surveys will be loaded dynamically -->
+                    <div class="loading-placeholder">Loading surveys...</div>
+                </div>
+
+                <!-- SURVEY MODAL/PLAYER -->
+                <div id="survey-player-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="survey-player-title">Survey Title</h3>
+                            <button class="close-btn" onclick="closeSurveyPlayer()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="survey-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="survey-progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <span id="survey-step-indicator">Question 1 of 3</span>
+                            </div>
+                            <div id="survey-question-container">
+                                <!-- Dynamic Question Render -->
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" id="survey-back-btn" onclick="surveyPreviousQuestion()" style="display:none;">Back</button>
+                            <button class="btn-primary" id="survey-next-btn" onclick="surveyNextQuestion()">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REFER TAB (NEW SECTION) -->
+            <div id="refer" class="content">
+                <div class="featured-card referral-header-card">
+                    <div class="featured-title">👥 Refer & Earn Program</div>
+                    <div class="featured-desc">Invite friends to TaskHub Pro and earn a flat <strong>$2.00 cash bonus</strong> when they join!</div>
+                    
+                    <div class="referral-link-box">
+                        <input type="text" id="referral-link-input" value="https://t.me/taskhub_pro_bot/app?startapp=loading" readonly>
+                        <button class="copy-btn" onclick="copyReferralLink()">Copy</button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px;">
+                        <button class="btn-secondary" onclick="shareReferralLink()">📢 Send to Telegram Friend</button>
+                    </div>
+                </div>
+
+                <div class="section-title">📊 Referral Statistics</div>
+                <div class="grid-2">
+                    <div class="stat-mini">
+                        <div class="stat-value" id="ref-total-count">0</div>
+                        <div class="stat-label">Total Referrals</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-value" id="ref-total-earnings">$0.00</div>
+                        <div class="stat-label">Referral Earnings</div>
+                    </div>
+                </div>
+
+                <div class="section-title">🤝 Referred Friends</div>
+                <div id="referred-list-container">
+                    <div class="no-referrals-msg">You have not referred any friends yet. Invite someone to start earning!</div>
+                </div>
+            </div>
+
+            <!-- REWARDS (ACHIEVEMENTS) TAB -->
+            <div id="achievements" class="content">
+                <div class="bonus-pool">
+                    <div class="pool-title">🏆 Weekly Bonus Pool</div>
+                    <div class="pool-amount">$2,450</div>
+                    <div class="pool-desc">Distributed to top 100 earners daily. You are ranked <span id="rewards-rank">#...</span></div>
+                    <button class="btn-secondary" onclick="switchTab(null, 'home')">Climb Leaderboard →</button>
+                </div>
+
+                <div class="section-title">⭐ Active Milestones</div>
+                <div class="grid-3" id="achievements-unlocked-container">
+                    <!-- Dynamic achievements -->
+                </div>
+
+                <div class="section-title">🔒 Locked Achievements</div>
+                <div class="grid-3" id="achievements-locked-container">
+                    <!-- Dynamic locked achievements -->
+                </div>
+            </div>
+
+            <!-- WALLET TAB -->
+            <div id="wallet" class="content">
+                <div class="featured-card">
+                    <div class="featured-title">💰 Account Balance</div>
+                    <div class="wallet-balance" id="wallet-balance-display">$0.00</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn-primary" onclick="openWithdrawModal()">Withdraw</button>
+                        <button class="btn-outline" onclick="alert('Deposits will be integrated with Telegram Stars / CryptoPay.')">Add Balance</button>
+                    </div>
+                </div>
+
+                <div class="section-title">💳 Payout Methods</div>
+                <div class="payment-methods-list">
+                    <div class="task-card payment-card active" onclick="selectPaymentMethod('PayPal', '$5')">
+                        <div class="payment-header">
+                            <div>
+                                <div class="task-title">PayPal</div>
+                                <div class="task-desc">Instant payout • Min withdrawal: $5.00</div>
+                            </div>
+                            <span class="payout-badge">Select</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card payment-card" onclick="selectPaymentMethod('Bank Transfer', '$10')">
+                        <div class="payment-header">
+                            <div>
+                                <div class="task-title">Bank Transfer</div>
+                                <div class="task-desc">Direct to local bank • Min withdrawal: $10.00</div>
+                            </div>
+                            <span class="payout-badge">Select</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card payment-card" onclick="selectPaymentMethod('Crypto (USDT-TON)', '$1')">
+                        <div class="payment-header">
+                            <div>
+                                <div class="task-title">Crypto (USDT on TON)</div>
+                                <div class="task-desc">Decentralized payout • Min withdrawal: $1.00</div>
+                            </div>
+                            <span class="payout-badge">Select</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">📜 Recent Transactions</div>
+                <div id="transactions-container">
+                    <div class="loading-placeholder">Loading transactions...</div>
+                </div>
+
+                <!-- WITHDRAWAL MODAL -->
+                <div id="withdraw-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Submit Payout Request</h3>
+                            <button class="close-btn" onclick="closeWithdrawModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 12px;">
+                                Selected Method: <strong style="color: #10b981;" id="selected-payout-method">PayPal</strong>
+                            </p>
+                            <div class="form-group">
+                                <label for="withdraw-amount">Amount to Withdraw ($)</label>
+                                <input type="number" id="withdraw-amount" placeholder="0.00" step="0.01" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="withdraw-account" id="withdraw-account-label">PayPal Email Address</label>
+                                <input type="text" id="withdraw-account" placeholder="name@email.com">
+                            </div>
+                            <div style="font-size: 9px; color: rgba(245, 158, 11, 0.8); margin-top: 8px;">
+                                * Payouts are manually approved and processed within 24-48 hours.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeWithdrawModal()">Cancel</button>
+                            <button class="btn-primary" onclick="submitWithdrawal()">Request Payout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTAINER BOTTOM SPACING -->
+            <div class="container-bottom"></div>
+        </div>
+    </div>
+
+    <!-- MAIN LOGIC -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+name = "taskhub-pro-backend"
+main = "src/index.js"
+compatibility_date = "2024-05-02"
+
+[vars]
+# Supabase URL and public anonymous key should be replaced with actual credentials
+SUPABASE_URL = "https://bkbrazmcjlrkpnugcqwu.supabase.co"
+# Note: For production, SUPABASE_KEY should be set using 'wrangler secret put SUPABASE_KEY'
+# rather than being committed to plain text config.
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrYnJhem1jamxya3BudWdjcXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MjI4OTUsImV4cCI6MjA5ODE5ODg5NX0.6tJep2yvkti_po-iSCv0NfFAWWx2Lb4X69UgTUH_bTg"
+
+# CORS configuration
+CORS_ALLOW_ORIGIN = "*"

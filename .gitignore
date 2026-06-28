@@ -1,0 +1,16 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cloudflare Wrangler files
+.wrangler/
+.dev.vars
+
+# Supabase local files (if any)
+.supabase/
+
+# OS files
+.DS_Store
+Thumbs.db
