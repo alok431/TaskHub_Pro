@@ -37,16 +37,6 @@
 
         <!-- CONTENT AREA -->
         <div class="content-area">
-            <!-- TAB BAR -->
-            <div class="tab-bar">
-                <button class="tab-btn active" onclick="switchTab(event, 'home')">🏠 Home</button>
-                <button class="tab-btn" onclick="switchTab(event, 'tasks')">📋 Tasks</button>
-                <button class="tab-btn" onclick="switchTab(event, 'surveys')">📝 Surveys</button>
-                <button class="tab-btn" onclick="switchTab(event, 'refer')">👥 Refer</button>
-                <button class="tab-btn" onclick="switchTab(event, 'achievements')">⭐ Rewards</button>
-                <button class="tab-btn" onclick="switchTab(event, 'wallet')">💳 Wallet</button>
-            </div>
-
             <!-- HOME TAB -->
             <div id="home" class="content active">
                 <!-- DAILY SPIN -->
@@ -275,6 +265,16 @@
 
             <!-- CONTAINER BOTTOM SPACING -->
             <div class="container-bottom"></div>
+        </div>
+
+        <!-- STICKY BOTTOM TAB BAR -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab(event, 'home')">🏠<span>Home</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'tasks')">📋<span>Tasks</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'surveys')">📝<span>Surveys</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'refer')">👥<span>Refer</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'achievements')">⭐<span>Rewards</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'wallet')">💳<span>Wallet</span></button>
         </div>
     </div>
 

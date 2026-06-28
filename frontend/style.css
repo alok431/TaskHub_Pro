@@ -10,17 +10,26 @@
 body {
     font-family: 'Poppins', 'Outfit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
-    background-color: #061818;
+    background-color: #030d0d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
 .app-container {
     background: linear-gradient(135deg, #0a1f1f 0%, #0d3a2e 50%, #061818 100%);
-    min-height: 100vh;
+    width: 100%;
+    max-width: 480px;
     height: 100vh;
+    min-height: 100vh;
     color: white;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    border-left: 1px solid rgba(16, 185, 129, 0.15);
+    border-right: 1px solid rgba(16, 185, 129, 0.15);
 }
 
 /* HEADER */
@@ -119,41 +128,69 @@ body {
     }
 }
 
-/* TAB BAR */
+/* TAB BAR (STICKY BOTTOM NAVIGATION) */
 .tab-bar {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 4px;
-    margin-bottom: 14px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 4px;
-    border-radius: 12px;
+    background: rgba(6, 22, 19, 0.95);
+    border-top: 1.5px solid rgba(16, 185, 129, 0.25);
+    padding: 10px 4px 14px;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    width: 100%;
 }
 
 .tab-btn {
-    padding: 8px 2px;
+    padding: 6px 2px;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 10px;
     color: rgba(255, 255, 255, 0.55);
-    font-size: 9px;
-    font-weight: 600;
+    font-size: 16px; /* Larger size for emoji icon */
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
+}
+
+.tab-btn span {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.2s;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(245, 158, 11, 0.07) 100%);
-    border-color: rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(245, 158, 11, 0.05) 100%);
+    border-color: rgba(16, 185, 129, 0.2);
     color: #10b981;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.tab-btn.active span {
+    color: #10b981;
+}
+
+/* Hide navigation labels on extremely small viewports to prevent wrapping issues */
+@media (max-width: 350px) {
+    .tab-btn {
+        font-size: 18px;
+        padding: 10px 2px;
+    }
+    .tab-btn span {
+        display: none;
+    }
+    .tab-bar {
+        padding: 10px 4px;
+    }
 }
 
 /* SECTIONS */
