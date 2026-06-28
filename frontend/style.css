@@ -923,3 +923,34 @@ body {
 .container-bottom {
     padding-bottom: 40px;
 }
+
+/* CUSTOM TOAST NOTIFICATION */
+.toast-popup {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(6, 25, 20, 0.96);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 12px;
+    padding: 10px 16px;
+    width: 90%;
+    max-width: 320px;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 2000;
+    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast-popup.active {
+    top: 80px;
+    opacity: 1;
+    pointer-events: auto;
+}

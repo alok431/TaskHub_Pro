@@ -11,6 +11,31 @@ if (WebApp) {
 // In production, change this to your deployed Cloudflare Workers URL
 const API_BASE_URL = 'https://taskhub-pro-backend.alokkumarsaw312.workers.dev'; 
 
+// Premium In-App Notification System (Replaces Native Browser Alerts)
+function showNotification(message, duration = 3000) {
+    const toast = document.getElementById('toast-notification');
+    const msgEl = document.getElementById('toast-message');
+    if (!toast || !msgEl) {
+        console.log("Notification Fallback:", message);
+        return;
+    }
+    msgEl.innerText = message;
+    toast.classList.add('active');
+    
+    if (window.toastTimeout) {
+        clearTimeout(window.toastTimeout);
+    }
+    
+    window.toastTimeout = setTimeout(() => {
+        toast.classList.remove('active');
+    }, duration);
+}
+
+// Global Override of Native Browser alerts to enforce Premium UI toasts
+window.alert = function(msg) {
+    showNotification(msg);
+}; 
+
 // Authentication Header preparation
 function getAuthHeader() {
     if (WebApp && WebApp.initData) {
