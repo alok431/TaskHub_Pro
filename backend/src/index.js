@@ -422,6 +422,36 @@ export default {
         });
       }
 
+      // POST /api/user/game-reward - Reward Mini Game Completion
+      if (path === '/api/user/game-reward' && request.method === 'POST') {
+        const { amount, game_name } = await request.json();
+        
+        const { data: user } = await supabase
+          .from('users')
+          .select('*')
+          .eq('telegram_id', tgUser.telegram_id)
+          .single();
+
+        const newBalance = Number(user.balance) + Number(amount);
+        await supabase
+          .from('users')
+          .update({ balance: newBalance })
+          .eq('telegram_id', tgUser.telegram_id);
+
+        // Record transaction
+        await supabase.from('transactions').insert({
+          user_id: tgUser.telegram_id,
+          amount: amount,
+          type: 'task',
+          description: `Played mini game: ${game_name} reward`
+        });
+
+        return corsResponse({
+          success: true,
+          new_balance: newBalance
+        });
+      }
+
       // 4. GET /api/tasks - List all tasks with user completion
       if (path === '/api/tasks' && request.method === 'GET') {
         // Fetch all active tasks

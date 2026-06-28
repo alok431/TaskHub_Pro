@@ -103,6 +103,29 @@
                     </div>
                     <div class="streak-footer">
                         <button class="btn-primary-wide" id="claim-streak-btn" onclick="claimDailyStreak()">Claim Today's Reward</button>
+                </div>
+
+                <!-- MINI GAMES SECTION -->
+                <div class="section-title">🎮 Play Mini Games & Earn</div>
+                <div class="games-section-container">
+                    <div class="game-card" onclick="openGame('match3')">
+                        <div class="game-emoji">🧩</div>
+                        <div class="game-details">
+                            <h4>Memory Match</h4>
+                            <p>Match emojis in 35s</p>
+                            <span class="game-reward">+300 Coins</span>
+                        </div>
+                        <button class="btn-game-play">Play →</button>
+                    </div>
+                    
+                    <div class="game-card" onclick="openGame('clicker')">
+                        <div class="game-emoji">⛏️</div>
+                        <div class="game-details">
+                            <h4>Coin Clicker</h4>
+                            <p>Tap giant coin 50 times</p>
+                            <span class="game-reward">+200 Coins</span>
+                        </div>
+                        <button class="btn-game-play">Play →</button>
                     </div>
                 </div>
 
@@ -305,6 +328,21 @@
                         <div class="modal-footer">
                             <button class="btn-outline" onclick="closeWithdrawModal()">Cancel</button>
                             <button class="btn-primary" onclick="submitWithdrawal()">Request Payout</button>
+                        </div>
+                </div>
+
+                <!-- MINI GAME MODAL -->
+                <div id="game-modal" class="modal">
+                    <div class="modal-content" style="max-width: 320px;">
+                        <div class="modal-header">
+                            <h3 id="game-modal-title">🎮 Playing Game</h3>
+                            <button class="close-btn" onclick="closeGameModal()">&times;</button>
+                        </div>
+                        <div class="modal-body" style="padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                            <!-- Game Container -->
+                            <div id="game-container" style="width: 100%; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+                                <!-- Game content will be injected dynamically -->
+                            </div>
                         </div>
                     </div>
                 </div>

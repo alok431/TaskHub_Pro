@@ -643,6 +643,9 @@ async function loadQuickTasks() {
         }
     }
 
+    // Filter out "Play Daily Mini Game" task since it is moved to its own beautiful section
+    tasks = tasks.filter(t => t.id !== 't2' && !t.title.includes('Play Daily Mini Game'));
+
     container.innerHTML = '';
     if (tasks.length === 0) {
         container.innerHTML = '<div class="loading-placeholder">No quick tasks available right now.</div>';
@@ -1546,5 +1549,282 @@ function setupMockDatabase() {
                 ]
             }
         ]));
+    }
+}
+
+/* ==========================================================================
+   PLAY MINI GAMES & EARN
+   ========================================================================== */
+let activeGame = null;
+let gameTimer = null;
+let gameScore = 0;
+
+function openGame(gameType) {
+    const modal = document.getElementById('game-modal');
+    if (!modal) return;
+    
+    modal.classList.add('active');
+    
+    const container = document.getElementById('game-container');
+    const title = document.getElementById('game-modal-title');
+    
+    // Clear any previous interval
+    if (gameTimer) clearInterval(gameTimer);
+    
+    if (gameType === 'clicker') {
+        title.innerText = '⛏️ Coin Clicker';
+        startClickerGame(container);
+    } else if (gameType === 'match3') {
+        title.innerText = '🧩 Memory Match';
+        startMemoryGame(container);
+    }
+}
+
+function closeGameModal() {
+    const modal = document.getElementById('game-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+}
+
+function startClickerGame(container) {
+    gameScore = 0;
+    const targetScore = 50;
+    let timeLeft = 20;
+    
+    container.innerHTML = `
+        <div style="text-align: center; width: 100%;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; font-weight: 700; color: var(--text-color, white);">
+                <span>Time Left: <strong id="clicker-timer" style="color: #ef4444;">20s</strong></span>
+                <span>Taps: <strong id="clicker-score">0/50</strong></span>
+            </div>
+            <div class="progress-bar" style="height: 8px; margin-bottom: 16px; background: rgba(0,0,0,0.2); border-radius: 4px; overflow: hidden;">
+                <div id="clicker-progress" class="progress-fill" style="width: 0%; height: 100%; background: #06b6d4; transition: width 0.1s;"></div>
+            </div>
+            <div id="clicker-coin" style="font-size: 64px; cursor: pointer; user-select: none; margin: 20px 0; transition: transform 0.1s ease; display: inline-block;">🪙</div>
+            <p style="font-size: 10px; color: #64748b;">Tap the giant coin 50 times before the timer runs out!</p>
+        </div>
+    `;
+    
+    const timerEl = document.getElementById('clicker-timer');
+    const scoreEl = document.getElementById('clicker-score');
+    const progressEl = document.getElementById('clicker-progress');
+    const coinEl = document.getElementById('clicker-coin');
+    
+    gameTimer = setInterval(() => {
+        timeLeft--;
+        if (timerEl) timerEl.innerText = `${timeLeft}s`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(gameTimer);
+            gameTimer = null;
+            container.innerHTML = `
+                <div style="text-align: center;">
+                    <span style="font-size: 40px;">😢</span>
+                    <h4 style="margin: 10px 0 4px; color: #ef4444; font-size: 14px;">Time's Up!</h4>
+                    <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You tapped ${gameScore} times. Try again!</p>
+                    <button class="btn-primary" onclick="openGame('clicker')" style="padding: 6px 16px; font-size: 11px;">Try Again</button>
+                </div>
+            `;
+        }
+    }, 1000);
+    
+    coinEl.addEventListener('click', () => {
+        if (timeLeft <= 0) return;
+        gameScore++;
+        
+        coinEl.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+            coinEl.style.transform = 'scale(1)';
+        }, 80);
+        
+        if (scoreEl) scoreEl.innerText = `${gameScore}/${targetScore}`;
+        if (progressEl) progressEl.style.width = `${(gameScore / targetScore) * 100}%`;
+        
+        if (gameScore >= targetScore) {
+            clearInterval(gameTimer);
+            gameTimer = null;
+            awardGameReward(200, 'Coin Clicker');
+            container.innerHTML = `
+                <div style="text-align: center;">
+                    <span style="font-size: 40px;">🎉</span>
+                    <h4 style="margin: 10px 0 4px; color: #10b981; font-size: 14px;">Victory!</h4>
+                    <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You successfully mined the coin! Earned 200 Coins.</p>
+                    <button class="btn-primary" onclick="closeGameModal()" style="padding: 6px 16px; font-size: 11px;">Awesome</button>
+                </div>
+            `;
+        }
+    });
+}
+
+function startMemoryGame(container) {
+    const emojis = ['💎', '💎', '💰', '💰', '🎰', '🎰', '🎡', '🎡', '🎮', '🎮', '⚡', '⚡', '🤝', '🤝', '👑', '👑'];
+    emojis.sort(() => Math.random() - 0.5);
+    
+    let timeLeft = 35;
+    let flippedCards = [];
+    let matchedPairs = 0;
+    
+    container.innerHTML = `
+        <div style="text-align: center; width: 100%;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; font-weight: 700; color: var(--text-color, white);">
+                <span>Time Left: <strong id="memory-timer" style="color: #ef4444;">35s</strong></span>
+                <span>Matches: <strong id="memory-score">0/8</strong></span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0;" id="memory-grid">
+                <!-- Cards will be injected -->
+            </div>
+        </div>
+    `;
+    
+    const gridEl = document.getElementById('memory-grid');
+    const timerEl = document.getElementById('memory-timer');
+    const scoreEl = document.getElementById('memory-score');
+    
+    emojis.forEach((emoji, index) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card-item';
+        card.dataset.index = index;
+        card.dataset.emoji = emoji;
+        card.style.cssText = `
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        `;
+        
+        card.innerHTML = '❓';
+        
+        card.addEventListener('click', () => {
+            if (timeLeft <= 0) return;
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if (flippedCards.length >= 2) return;
+            
+            card.innerHTML = emoji;
+            card.classList.add('flipped');
+            card.style.background = 'rgba(6, 182, 212, 0.15)';
+            card.style.borderColor = '#06b6d4';
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                const card1 = flippedCards[0];
+                const card2 = flippedCards[1];
+                
+                if (card1.dataset.emoji === card2.dataset.emoji) {
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    card1.style.background = 'rgba(16, 185, 129, 0.15)';
+                    card1.style.borderColor = '#10b981';
+                    card2.style.background = 'rgba(16, 185, 129, 0.15)';
+                    card2.style.borderColor = '#10b981';
+                    
+                    flippedCards = [];
+                    matchedPairs++;
+                    if (scoreEl) scoreEl.innerText = `${matchedPairs}/8`;
+                    
+                    if (matchedPairs >= 8) {
+                        clearInterval(gameTimer);
+                        gameTimer = null;
+                        awardGameReward(300, 'Memory Match');
+                        container.innerHTML = `
+                            <div style="text-align: center;">
+                                <span style="font-size: 40px;">🎉</span>
+                                <h4 style="margin: 10px 0 4px; color: #10b981; font-size: 14px;">Victory!</h4>
+                                <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">Matched all pairs! Earned 300 Coins.</p>
+                                <button class="btn-primary" onclick="closeGameModal()" style="padding: 6px 16px; font-size: 11px;">Awesome</button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    setTimeout(() => {
+                        card1.innerHTML = '❓';
+                        card1.classList.remove('flipped');
+                        card1.style.background = 'rgba(255, 255, 255, 0.06)';
+                        card1.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        
+                        card2.innerHTML = '❓';
+                        card2.classList.remove('flipped');
+                        card2.style.background = 'rgba(255, 255, 255, 0.06)';
+                        card2.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        
+                        flippedCards = [];
+                    }, 800);
+                }
+            }
+        });
+        
+        gridEl.appendChild(card);
+    });
+    
+    gameTimer = setInterval(() => {
+        timeLeft--;
+        if (timerEl) timerEl.innerText = `${timeLeft}s`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(gameTimer);
+            gameTimer = null;
+            container.innerHTML = `
+                <div style="text-align: center;">
+                    <span style="font-size: 40px;">😢</span>
+                    <h4 style="margin: 10px 0 4px; color: #ef4444; font-size: 14px;">Time's Up!</h4>
+                    <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">You matched ${matchedPairs} pairs. Try again!</p>
+                    <button class="btn-primary" onclick="openGame('match3')" style="padding: 6px 16px; font-size: 11px;">Try Again</button>
+                </div>
+            `;
+        }
+    }, 1000);
+}
+
+async function awardGameReward(amount, gameName) {
+    if (useMockData) {
+        userState.balance += amount;
+        
+        // Save
+        const mockUser = JSON.parse(localStorage.getItem('th_user'));
+        mockUser.balance = userState.balance;
+        localStorage.setItem('th_user', JSON.stringify(mockUser));
+
+        // Log transaction
+        const mockTxs = JSON.parse(localStorage.getItem('th_transactions'));
+        mockTxs.unshift({
+            id: Math.random().toString(36).substr(2, 9),
+            amount: amount,
+            type: 'task',
+            description: `Played mini game: ${gameName} reward`,
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
+        updateHeaderStats();
+    } else {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/user/game-reward`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Telegram-Init-Data': getAuthHeader()
+                },
+                body: JSON.stringify({ amount: amount, game_name: gameName })
+            });
+            const data = await response.json();
+            if (data.success) {
+                userState.balance = data.new_balance;
+            }
+            updateHeaderStats();
+        } catch (err) {
+            console.error("Failed to post game reward to server, falling back to local simulation.", err);
+            userState.balance += amount;
+            updateHeaderStats();
+        }
     }
 }

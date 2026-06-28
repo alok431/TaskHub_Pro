@@ -1505,3 +1505,106 @@ body {
 .light-theme .tx-negative {
     color: #b91c1c !important;
 }
+
+/* MINI GAMES SECTION */
+.games-section-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.game-card {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(16, 185, 129, 0.06));
+    border: 1.5px solid rgba(6, 182, 212, 0.25);
+    border-radius: 12px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.4);
+}
+
+.game-emoji {
+    font-size: 28px;
+    background: rgba(6, 182, 212, 0.15);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+}
+
+.game-details h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 2px;
+}
+
+.game-details p {
+    font-size: 8.5px;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.2;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-reward {
+    font-size: 9px;
+    font-weight: 700;
+    color: #06b6d4;
+    display: block;
+    margin-top: 4px;
+}
+
+.btn-game-play {
+    width: 100%;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 700;
+    font-size: 9px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-game-play:hover {
+    transform: scale(1.02);
+}
+
+/* Light Theme overrides for games */
+.light-theme .game-card {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(6, 182, 212, 0.25) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+.light-theme .game-details h4 {
+    color: #0f172a !important;
+}
+
+.light-theme .game-details p {
+    color: #475569 !important;
+}
+
+.light-theme .game-reward {
+    color: #0891b2 !important;
+}
