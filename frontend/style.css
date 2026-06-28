@@ -1483,3 +1483,25 @@ body {
 .light-theme .form-group input::placeholder {
     color: #94a3b8 !important;
 }
+
+/* TRANSACTION HISTORY IN LIGHT THEME */
+.light-theme .transaction-item {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme .tx-title {
+    color: #0f172a !important;
+}
+
+.light-theme .tx-date {
+    color: #64748b !important;
+}
+
+.light-theme .tx-positive {
+    color: #047857 !important;
+}
+
+.light-theme .tx-negative {
+    color: #b91c1c !important;
+}
