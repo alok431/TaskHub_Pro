@@ -16,7 +16,47 @@
         <div class="header">
             <div class="header-top">
                 <div class="logo">💎 TaskHub Pro</div>
-                <div class="tier-badge" id="user-level">LEVEL 1</div>
+                <div class="header-controls">
+                    <!-- Theme Toggle Badge -->
+                    <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
+                    <!-- Profile Badge -->
+                    <div class="profile-badge" id="profile-badge" onclick="toggleProfileDropdown(event)">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-text">
+                            <div class="profile-name" id="profile-name">Guest</div>
+                            <div class="profile-id" id="profile-id">ID: -</div>
+                        </div>
+                        
+                        <!-- Profile Dropdown -->
+                        <div class="profile-dropdown" id="profile-dropdown">
+                            <div class="dropdown-header">
+                                <span class="dropdown-title">👤 User Profile</span>
+                            </div>
+                            <div class="dropdown-stats-grid">
+                                <div class="dropdown-stat">
+                                    <div class="stat-lbl">Telegram ID</div>
+                                    <div class="stat-val" id="dropdown-id-val">-</div>
+                                </div>
+                                <div class="dropdown-stat">
+                                    <div class="stat-lbl">Balance</div>
+                                    <div class="stat-val" id="dropdown-balance-val">0 Coins</div>
+                                </div>
+                                <div class="dropdown-stat">
+                                    <div class="stat-lbl">Completions</div>
+                                    <div class="stat-val" id="dropdown-completed-val">0</div>
+                                </div>
+                                <div class="dropdown-stat">
+                                    <div class="stat-lbl">Streak</div>
+                                    <div class="stat-val" id="dropdown-streak-val">1d</div>
+                                </div>
+                                <div class="dropdown-stat full-width">
+                                    <div class="stat-lbl">Current Level</div>
+                                    <div class="stat-val" id="dropdown-level-val">LEVEL 1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="header-stats">
@@ -49,14 +89,20 @@
                 </div>
 
                 <!-- STREAK BONUS -->
+                <!-- STREAK BONUS -->
                 <div class="streak-card">
-                    <div class="streak-info">
-                        <h3>🔥 Login Streak</h3>
-                        <p>Claim daily bonus to extend</p>
+                    <div class="streak-header">
+                        <div class="streak-title-container">
+                            <h3>🔥 Daily Login Streak</h3>
+                            <p id="streak-subtitle">Claim daily bonus to extend</p>
+                        </div>
+                        <span class="streak-badge" id="streak-badge-display">Day 1</span>
                     </div>
-                    <div class="streak-right">
-                        <div class="streak-number" id="streak-display">1</div>
-                        <button class="btn-primary-mini" id="claim-streak-btn" onclick="claimDailyStreak()">Claim</button>
+                    <div class="streak-days-grid" id="streak-days-container">
+                        <!-- 7 Days will be loaded dynamically -->
+                    </div>
+                    <div class="streak-footer">
+                        <button class="btn-primary-wide" id="claim-streak-btn" onclick="claimDailyStreak()">Claim Today's Reward</button>
                     </div>
                 </div>
 

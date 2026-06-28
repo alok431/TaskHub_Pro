@@ -57,7 +57,9 @@ let userState = {
     completions: 0,
     level: 1,
     canSpin: true,
-    spinCooldown: 0
+    spinCooldown: 0,
+    lastStreakClaim: null,
+    claimedStreakToday: false
 };
 
 let activeTab = 'home';
@@ -72,6 +74,7 @@ let surveyAnswers = {};
 
 // Initialization
 document.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
     console.log("TaskHub Pro Initializing...");
     
     // Check API availability
@@ -170,6 +173,28 @@ async function loadUserProfile() {
             userState.canSpin = true;
             userState.spinCooldown = 0;
         }
+
+        // Cooldown check for streak
+        const lastClaimStr = localStorage.getItem('th_last_streak_claim');
+        let claimedStreakToday = false;
+        if (lastClaimStr) {
+            const lastClaimDate = new Date(lastClaimStr);
+            const now = new Date();
+            const diffDays = getUTCDayDifference(lastClaimDate, now);
+            if (diffDays === 0) {
+                claimedStreakToday = true;
+            } else if (diffDays > 1) {
+                // Reset streak if missed consecutive login
+                userState.streak = 1;
+                const mockUserObj = JSON.parse(localStorage.getItem('th_user'));
+                if (mockUserObj) {
+                    mockUserObj.streak = 1;
+                    localStorage.setItem('th_user', JSON.stringify(mockUserObj));
+                }
+            }
+        }
+        userState.lastStreakClaim = lastClaimStr;
+        userState.claimedStreakToday = claimedStreakToday;
     } else {
         try {
             // Check for url referral code
@@ -195,6 +220,8 @@ async function loadUserProfile() {
                 userState.streak = data.user.streak;
                 userState.canSpin = data.spin.canSpin;
                 userState.spinCooldown = data.spin.spinCooldown;
+                userState.lastStreakClaim = data.streak.last_streak_claim;
+                userState.claimedStreakToday = data.streak.claimed_today;
                 
                 // Get counts
                 const tasksRes = await fetch(`${API_BASE_URL}/api/tasks`, {
@@ -232,7 +259,171 @@ function updateHeaderStats() {
     document.getElementById('stat-balance').innerText = `${Math.floor(userState.balance)} Coins`;
     document.getElementById('stat-completed').innerText = userState.completions;
     document.getElementById('stat-streak').innerText = `${userState.streak}d`;
-    document.getElementById('user-level').innerText = `LEVEL ${userState.level}`;
+    
+    const levelEl = document.getElementById('user-level');
+    if (levelEl) levelEl.innerText = `LEVEL ${userState.level}`;
+    
+    // Update profile badge display
+    const profileName = document.getElementById('profile-name');
+    const profileId = document.getElementById('profile-id');
+    if (profileName) {
+        profileName.innerText = userState.first_name + (userState.last_name ? ' ' + userState.last_name : '');
+    }
+    if (profileId) {
+        profileId.innerText = userState.telegram_id ? `ID: ${userState.telegram_id}` : 'ID: -';
+    }
+    
+    // Update profile dropdown elements
+    const dropdownIdVal = document.getElementById('dropdown-id-val');
+    const dropdownBalanceVal = document.getElementById('dropdown-balance-val');
+    const dropdownCompletedVal = document.getElementById('dropdown-completed-val');
+    const dropdownStreakVal = document.getElementById('dropdown-streak-val');
+    const dropdownLevelVal = document.getElementById('dropdown-level-val');
+    
+    if (dropdownIdVal) dropdownIdVal.innerText = userState.telegram_id || '-';
+    if (dropdownBalanceVal) dropdownBalanceVal.innerText = `${Math.floor(userState.balance)} Coins`;
+    if (dropdownCompletedVal) dropdownCompletedVal.innerText = userState.completions;
+    if (dropdownStreakVal) dropdownStreakVal.innerText = `${userState.streak}d`;
+    if (dropdownLevelVal) dropdownLevelVal.innerText = `LEVEL ${userState.level}`;
+    
+    updateStreakUI();
+}
+
+// Toggle profile dropdown
+function toggleProfileDropdown(event) {
+    if (event) event.stopPropagation();
+    const dropdown = document.getElementById('profile-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// Close dropdown on click outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('profile-dropdown');
+    const badge = document.getElementById('profile-badge');
+    if (dropdown && dropdown.classList.contains('show')) {
+        if (!badge || !badge.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    }
+});
+
+// Theme Toggle
+function toggleTheme() {
+    const appContainer = document.querySelector('.app-container');
+    const toggleBtn = document.getElementById('theme-toggle');
+    if (!appContainer) return;
+    
+    const isLight = appContainer.classList.toggle('light-theme');
+    
+    // Save theme preference in localStorage
+    localStorage.setItem('th_theme', isLight ? 'light' : 'dark');
+    
+    // Update toggle button icon
+    if (toggleBtn) {
+        toggleBtn.innerText = isLight ? '☀️' : '🌙';
+    }
+}
+
+// Initialize Theme on startup
+function initTheme() {
+    const savedTheme = localStorage.getItem('th_theme');
+    const appContainer = document.querySelector('.app-container');
+    const toggleBtn = document.getElementById('theme-toggle');
+    
+    if (savedTheme === 'light' && appContainer) {
+        appContainer.classList.add('light-theme');
+        if (toggleBtn) {
+            toggleBtn.innerText = '☀️';
+        }
+    }
+}
+
+// Helper for calendar day difference in UTC
+function getUTCDayDifference(d1, d2) {
+    const utc1 = Date.UTC(d1.getUTCFullYear(), d1.getUTCMonth(), d1.getUTCDate());
+    const utc2 = Date.UTC(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
+    return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+}
+
+// Render the 7-day daily login streak grid dynamically
+function updateStreakUI() {
+    const gridContainer = document.getElementById('streak-days-container');
+    const subtitle = document.getElementById('streak-subtitle');
+    const badge = document.getElementById('streak-badge-display');
+    const claimBtn = document.getElementById('claim-streak-btn');
+    
+    if (!gridContainer || !claimBtn) return;
+    
+    gridContainer.innerHTML = '';
+    
+    const streak = userState.streak || 1;
+    const claimedToday = userState.claimedStreakToday || false;
+    
+    // The current day in the 7-day cycle (1 to 7)
+    const currentDayInCycle = ((streak - 1) % 7) + 1;
+    
+    if (subtitle) {
+        subtitle.innerText = claimedToday
+            ? `Come back tomorrow to extend your streak! (Current Streak: ${streak} days)`
+            : `Claim daily bonus to extend (Current Streak: ${streak - 1} days)`;
+    }
+    
+    if (badge) {
+        badge.innerText = `Day ${currentDayInCycle}`;
+    }
+    
+    for (let day = 1; day <= 7; day++) {
+        const dayItem = document.createElement('div');
+        dayItem.className = 'streak-day-item';
+        
+        let statusIcon = '🔒';
+        let stateClass = '';
+        
+        if (claimedToday) {
+            if (day <= currentDayInCycle) {
+                stateClass = 'completed';
+                statusIcon = '✅';
+            } else {
+                stateClass = 'locked';
+                statusIcon = '🔒';
+            }
+        } else {
+            if (day < currentDayInCycle) {
+                stateClass = 'completed';
+                statusIcon = '✅';
+            } else if (day === currentDayInCycle) {
+                stateClass = 'active';
+                statusIcon = '🔥';
+            } else {
+                stateClass = 'locked';
+                statusIcon = '🔒';
+            }
+        }
+        
+        if (stateClass) {
+            dayItem.classList.add(stateClass);
+        }
+        
+        const coinsReward = day * 50;
+        
+        dayItem.innerHTML = `
+            <div class="streak-day-label">Day ${day}</div>
+            <div class="streak-day-icon">${statusIcon}</div>
+            <div class="streak-day-reward">+${coinsReward}</div>
+        `;
+        
+        gridContainer.appendChild(dayItem);
+    }
+    
+    if (claimedToday) {
+        claimBtn.disabled = true;
+        claimBtn.innerText = 'Claimed Today';
+    } else {
+        claimBtn.disabled = false;
+        claimBtn.innerText = `Claim Day ${currentDayInCycle} Reward (+${currentDayInCycle * 50} Coins)`;
+    }
 }
 
 // Spin Cooldown update helper
@@ -346,6 +537,7 @@ async function triggerSpin() {
    ========================================================================== */
 async function claimDailyStreak() {
     const claimBtn = document.getElementById('claim-streak-btn');
+    if (!claimBtn) return;
     claimBtn.disabled = true;
     claimBtn.innerText = 'Claiming...';
 
@@ -355,14 +547,15 @@ async function claimDailyStreak() {
         const now = new Date();
         
         if (lastClaimStr) {
-            const diffDays = Math.ceil(Math.abs(now - new Date(lastClaimStr)) / (1000 * 60 * 60 * 24));
+            const lastClaimDate = new Date(lastClaimStr);
+            const diffDays = getUTCDayDifference(lastClaimDate, now);
             if (diffDays === 0) {
                 alert('You have already claimed your daily streak bonus today!');
                 claimBtn.disabled = false;
-                claimBtn.innerText = 'Claim';
+                updateHeaderStats();
                 return;
             } else if (diffDays === 1) {
-                userState.streak += 1;
+                userState.streak = (userState.streak % 7) + 1;
             } else {
                 userState.streak = 1;
             }
@@ -370,8 +563,10 @@ async function claimDailyStreak() {
             userState.streak = 1;
         }
 
-        const streakBonus = Math.min(50 * userState.streak, 350);
+        const streakBonus = 50 * userState.streak;
         userState.balance += streakBonus;
+        userState.claimedStreakToday = true;
+        userState.lastStreakClaim = now.toISOString();
         
         // Save
         localStorage.setItem('th_last_streak_claim', now.toISOString());
@@ -394,8 +589,6 @@ async function claimDailyStreak() {
 
         alert(`🔥 Streak Claimed! Earned ${streakBonus} Coins (Day ${userState.streak})`);
         
-        claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim';
         updateHeaderStats();
     } else {
         try {
@@ -407,12 +600,12 @@ async function claimDailyStreak() {
             if (data.success) {
                 userState.balance = data.new_balance;
                 userState.streak = data.streak;
+                userState.claimedStreakToday = true;
+                userState.lastStreakClaim = data.last_streak_claim;
                 alert(`🔥 Streak Claimed! Earned ${data.reward} Coins (Day ${data.streak})`);
             } else {
                 alert(data.error || 'Could not claim daily streak.');
             }
-            claimBtn.disabled = false;
-            claimBtn.innerText = 'Claim';
             updateHeaderStats();
         } catch (err) {
             alert('Failed to connect to server. Claiming locally.');
@@ -1281,6 +1474,11 @@ function setupMockDatabase() {
             streak: 7,
             last_login: new Date().toISOString()
         }));
+    }
+
+    if (!localStorage.getItem('th_last_streak_claim')) {
+        // Set last claim to 28 hours ago so they are ready to claim Day 1 today!
+        localStorage.setItem('th_last_streak_claim', new Date(Date.now() - 3600000 * 28).toISOString());
     }
 
     if (!localStorage.getItem('th_completions_count')) {

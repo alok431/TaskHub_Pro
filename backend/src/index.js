@@ -231,9 +231,52 @@ export default {
           }
         }
 
+        // Check daily streak status
+        const { data: lastStreak } = await supabase
+          .from('transactions')
+          .select('created_at')
+          .eq('user_id', tgUser.telegram_id)
+          .eq('type', 'streak')
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        let lastStreakClaimTime = null;
+        let claimedToday = false;
+        if (lastStreak && lastStreak.length > 0) {
+          lastStreakClaimTime = lastStreak[0].created_at;
+          const lastClaimDate = new Date(lastStreakClaimTime);
+          const currentDate = new Date();
+          const utc1 = Date.UTC(lastClaimDate.getUTCFullYear(), lastClaimDate.getUTCMonth(), lastClaimDate.getUTCDate());
+          const utc2 = Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate());
+          const diffDays = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+          if (diffDays === 0) {
+            claimedToday = true;
+          } else if (diffDays > 1) {
+            // Streak is broken! Reset user streak to 1 in the database
+            await supabase
+              .from('users')
+              .update({ streak: 1 })
+              .eq('telegram_id', tgUser.telegram_id);
+            user.streak = 1;
+          }
+        } else {
+          // If no streak transaction exists but database streak > 1, reset to 1
+          if (user.streak > 1) {
+            await supabase
+              .from('users')
+              .update({ streak: 1 })
+              .eq('telegram_id', tgUser.telegram_id);
+            user.streak = 1;
+          }
+        }
+
         return corsResponse({
           user,
-          spin: { canSpin, spinCooldown }
+          spin: { canSpin, spinCooldown },
+          streak: {
+            last_streak_claim: lastStreakClaimTime,
+            claimed_today: claimedToday
+          }
         });
       }
 
@@ -309,24 +352,47 @@ export default {
           .eq('telegram_id', tgUser.telegram_id)
           .single();
 
-        const lastLoginDate = new Date(user.last_login);
+        // Check last daily streak claim transaction
+        const { data: lastStreak } = await supabase
+          .from('transactions')
+          .select('created_at')
+          .eq('user_id', tgUser.telegram_id)
+          .eq('type', 'streak')
+          .order('created_at', { ascending: false })
+          .limit(1);
+
         const currentDate = new Date();
-        
-        // Calculate difference in days
-        const diffTime = Math.abs(currentDate - lastLoginDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        let lastClaimDate = null;
+        let diffDays = 0;
+
+        if (lastStreak && lastStreak.length > 0) {
+          lastClaimDate = new Date(lastStreak[0].created_at);
+          const utc1 = Date.UTC(lastClaimDate.getUTCFullYear(), lastClaimDate.getUTCMonth(), lastClaimDate.getUTCDate());
+          const utc2 = Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate());
+          diffDays = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+          
+          if (diffDays === 0) {
+            return corsResponse({
+              success: false,
+              error: 'You have already claimed your daily streak bonus today!'
+            }, 400);
+          }
+        } else {
+          // No previous claim, start new
+          diffDays = 999;
+        }
 
         let currentStreak = user.streak;
         if (diffDays === 1) {
-          // Continuous daily login
-          currentStreak += 1;
-        } else if (diffDays > 1) {
-          // Missed login, reset streak
+          // Continuous daily login, wrap around at 7 days
+          currentStreak = (currentStreak % 7) + 1;
+        } else {
+          // Missed login or first claim, reset to 1
           currentStreak = 1;
         }
 
-        // Streak reward calculations: 50 Coins * streak day (max 350 coins per day)
-        const streakBonus = Math.min(50 * currentStreak, 350);
+        // Streak reward calculations: 50 Coins * streak day (Day 1: 50, Day 7: 350)
+        const streakBonus = 50 * currentStreak;
 
         const newBalance = Number(user.balance) + streakBonus;
         await supabase
@@ -350,7 +416,9 @@ export default {
           success: true,
           streak: currentStreak,
           reward: streakBonus,
-          new_balance: newBalance
+          new_balance: newBalance,
+          last_streak_claim: currentDate.toISOString(),
+          claimed_today: true
         });
       }
 
