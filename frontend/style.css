@@ -1320,54 +1320,166 @@ body {
 }
 
 .light-theme .profile-badge {
-    background: rgba(0, 0, 0, 0.05) !important;
-    border-color: rgba(0, 0, 0, 0.1) !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
 }
 
-.light-theme .profile-name-mini {
+.light-theme .profile-name {
     color: #0f172a !important;
 }
 
-.light-theme .profile-id-mini {
-    color: #64748b !important;
+.light-theme .profile-id {
+    color: #475569 !important;
 }
 
 .light-theme .profile-dropdown {
     background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-}
-
-.light-theme .dropdown-user-details h4 {
-    color: #0f172a !important;
-}
-
-.light-theme .dropdown-user-details p {
-    color: #64748b !important;
-}
-
-.light-theme .dropdown-stat-item {
-    background: rgba(0, 0, 0, 0.02) !important;
-    border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.light-theme .dropdown-stat-item .stat-label {
-    color: #64748b !important;
-}
-
-.light-theme .dropdown-stat-item .stat-value {
-    color: #0f172a !important;
+    border: 1.5px solid rgba(16, 185, 129, 0.3) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
 }
 
 .light-theme .dropdown-title {
     color: #047857 !important;
+    border-bottom-color: rgba(16, 185, 129, 0.15) !important;
 }
 
-.light-theme .dropdown-stat .stat-lbl {
+.light-theme .dropdown-stat {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme .stat-lbl {
     color: #64748b !important;
 }
 
-.light-theme .dropdown-stat .stat-val {
+.light-theme .stat-val {
     color: #0f172a !important;
 }
 
+/* LEADERBOARD IN LIGHT THEME */
+.light-theme .leaderboard-item {
+    background: rgba(16, 185, 129, 0.06) !important;
+    border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+.light-theme .player-name {
+    color: #0f172a !important;
+}
+
+.light-theme .player-status {
+    color: #475569 !important;
+}
+
+.light-theme .score-display {
+    color: #047857 !important;
+}
+
+/* ACHIEVEMENTS IN LIGHT THEME */
+.light-theme .achievement-item {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.light-theme .achievement-name {
+    color: #0f172a !important;
+}
+
+.light-theme .achievement-reward {
+    color: #047857 !important;
+}
+
+.light-theme .achievement-locked {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    opacity: 0.55;
+}
+
+.light-theme .bonus-pool {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.light-theme .pool-title {
+    color: #b45309 !important;
+}
+
+/* BUTTONS IN LIGHT THEME */
+.light-theme .btn-outline {
+    color: #047857 !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.light-theme .btn-outline:active {
+    background: rgba(16, 185, 129, 0.08) !important;
+}
+
+.light-theme button:disabled,
+.light-theme .btn-primary-wide:disabled {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+}
+
+/* TAB BAR IN LIGHT THEME */
+.light-theme .tab-bar {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-top: 1.5px solid rgba(16, 185, 129, 0.2) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.light-theme .tab-btn {
+    color: #475569 !important;
+}
+
+.light-theme .tab-btn span {
+    color: #64748b !important;
+}
+
+.light-theme .tab-btn.active {
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    color: #047857 !important;
+}
+
+.light-theme .tab-btn.active span {
+    color: #047857 !important;
+}
+
+/* MODALS IN LIGHT THEME */
+.light-theme .modal-content {
+    background: #ffffff !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-theme .modal-header {
+    border-bottom-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+.light-theme .modal-header h3 {
+    color: #047857 !important;
+}
+
+.light-theme .close-btn {
+    color: #0f172a !important;
+}
+
+.light-theme .modal-body p {
+    color: #475569 !important;
+}
+
+.light-theme .form-group label {
+    color: #475569 !important;
+}
+
+.light-theme .form-group input {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #0f172a !important;
+}
+
+.light-theme .form-group input::placeholder {
+    color: #94a3b8 !important;
+}
