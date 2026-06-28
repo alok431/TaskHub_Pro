@@ -1559,24 +1559,66 @@ let activeGame = null;
 let gameTimer = null;
 let gameScore = 0;
 
-function openGame(gameType) {
+function openGamesHub() {
     const modal = document.getElementById('game-modal');
     if (!modal) return;
     
     modal.classList.add('active');
-    
-    const container = document.getElementById('game-container');
+    renderGamesList();
+}
+
+function renderGamesList() {
     const title = document.getElementById('game-modal-title');
+    const body = document.getElementById('game-modal-body');
+    if (!title || !body) return;
     
-    // Clear any previous interval
+    title.innerText = '🎮 Game Zone';
+    
+    // Clear any active game timers
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+    
+    body.innerHTML = `
+        <p style="font-size: 10px; color: #64748b; margin-bottom: 8px; text-align: center;">
+            Choose a game to play and earn coins!
+        </p>
+        <div class="games-hub-list">
+            <div class="hub-game-card" onclick="openGame('match3')">
+                <div class="hub-game-icon">🧩</div>
+                <div class="hub-game-info">
+                    <h4>Memory Match</h4>
+                    <p>Match pairs in 35s • +300 Coins</p>
+                </div>
+                <button class="hub-game-play-btn">Play</button>
+            </div>
+            
+            <div class="hub-game-card" onclick="openGame('clicker')">
+                <div class="hub-game-icon">⛏️</div>
+                <div class="hub-game-info">
+                    <h4>Coin Clicker</h4>
+                    <p>Tap coin 50 times • +200 Coins</p>
+                </div>
+                <button class="hub-game-play-btn">Play</button>
+            </div>
+        </div>
+    `;
+}
+
+function openGame(gameType) {
+    const title = document.getElementById('game-modal-title');
+    const body = document.getElementById('game-modal-body');
+    if (!title || !body) return;
+    
     if (gameTimer) clearInterval(gameTimer);
     
     if (gameType === 'clicker') {
         title.innerText = '⛏️ Coin Clicker';
-        startClickerGame(container);
+        startClickerGame(body);
     } else if (gameType === 'match3') {
         title.innerText = '🧩 Memory Match';
-        startMemoryGame(container);
+        startMemoryGame(body);
     }
 }
 
@@ -1627,7 +1669,10 @@ function startClickerGame(container) {
                     <span style="font-size: 40px;">😢</span>
                     <h4 style="margin: 10px 0 4px; color: #ef4444; font-size: 14px;">Time's Up!</h4>
                     <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You tapped ${gameScore} times. Try again!</p>
-                    <button class="btn-primary" onclick="openGame('clicker')" style="padding: 6px 16px; font-size: 11px;">Try Again</button>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <button class="btn-outline" onclick="renderGamesList()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Back to Hub</button>
+                        <button class="btn-primary" onclick="openGame('clicker')" style="padding: 6px 16px; font-size: 11px; width: auto;">Try Again</button>
+                    </div>
                 </div>
             `;
         }
@@ -1654,7 +1699,10 @@ function startClickerGame(container) {
                     <span style="font-size: 40px;">🎉</span>
                     <h4 style="margin: 10px 0 4px; color: #10b981; font-size: 14px;">Victory!</h4>
                     <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You successfully mined the coin! Earned 200 Coins.</p>
-                    <button class="btn-primary" onclick="closeGameModal()" style="padding: 6px 16px; font-size: 11px;">Awesome</button>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <button class="btn-outline" onclick="closeGameModal()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Close</button>
+                        <button class="btn-primary" onclick="renderGamesList()" style="padding: 6px 16px; font-size: 11px; width: auto;">Back to Hub</button>
+                    </div>
                 </div>
             `;
         }
@@ -1742,7 +1790,10 @@ function startMemoryGame(container) {
                                 <span style="font-size: 40px;">🎉</span>
                                 <h4 style="margin: 10px 0 4px; color: #10b981; font-size: 14px;">Victory!</h4>
                                 <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">Matched all pairs! Earned 300 Coins.</p>
-                                <button class="btn-primary" onclick="closeGameModal()" style="padding: 6px 16px; font-size: 11px;">Awesome</button>
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button class="btn-outline" onclick="closeGameModal()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Close</button>
+                                    <button class="btn-primary" onclick="renderGamesList()" style="padding: 6px 16px; font-size: 11px; width: auto;">Back to Hub</button>
+                                </div>
                             </div>
                         `;
                     }
@@ -1779,7 +1830,10 @@ function startMemoryGame(container) {
                     <span style="font-size: 40px;">😢</span>
                     <h4 style="margin: 10px 0 4px; color: #ef4444; font-size: 14px;">Time's Up!</h4>
                     <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">You matched ${matchedPairs} pairs. Try again!</p>
-                    <button class="btn-primary" onclick="openGame('match3')" style="padding: 6px 16px; font-size: 11px;">Try Again</button>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <button class="btn-outline" onclick="renderGamesList()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Back to Hub</button>
+                        <button class="btn-primary" onclick="openGame('match3')" style="padding: 6px 16px; font-size: 11px; width: auto;">Try Again</button>
+                    </div>
                 </div>
             `;
         }
