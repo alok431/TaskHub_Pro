@@ -237,8 +237,8 @@ async function triggerSpin() {
         setTimeout(() => {
             wheel.classList.remove('spinning-animation');
             
-            // Random rewards setup
-            const rewards = [0.10, 0.25, 0.50, 1.00, 2.50, 5.00];
+            // Random rewards setup (Coins)
+            const rewards = [20, 50, 100, 250, 500, 1700];
             const items = ['🎟️', '💰', '💵', '💎', '👑', '🎰'];
             const rollIdx = Math.floor(Math.random() * rewards.length);
             const prize = rewards[rollIdx];
@@ -263,12 +263,12 @@ async function triggerSpin() {
                 id: Math.random().toString(36).substr(2, 9),
                 amount: prize,
                 type: 'spin',
-                description: `Won $${prize.toFixed(2)} on Daily Lucky Spin`,
+                description: `Won ${prize} Coins on Daily Lucky Spin`,
                 created_at: new Date().toISOString()
             });
             localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-            alert(`🎉 Congratulations! You won $${prize.toFixed(2)}!`);
+            alert(`🎉 Congratulations! You won ${prize} Coins!`);
             
             updateHeaderStats();
             updateSpinUI();
@@ -288,10 +288,10 @@ async function triggerSpin() {
                     userState.canSpin = false;
                     userState.spinCooldown = data.cooldown;
                     
-                    const icons = { 0.1: '🎟️', 0.25: '💰', 0.5: '💵', 1.0: '💎', 2.5: '👑', 5.0: '🎰' };
+                    const icons = { 20: '🎟️', 50: '💰', 100: '💵', 250: '💎', 500: '👑', 1700: '🎰' };
                     wheel.innerText = icons[data.reward] || '💎';
 
-                    alert(`🎉 Congratulations! You won $${data.reward.toFixed(2)}!`);
+                    alert(`🎉 Congratulations! You won ${data.reward} Coins!`);
                 } else {
                     alert(`Error: ${data.error}`);
                 }
@@ -336,7 +336,7 @@ async function claimDailyStreak() {
             userState.streak = 1;
         }
 
-        const streakBonus = Math.min(0.10 * userState.streak, 1.00);
+        const streakBonus = Math.min(50 * userState.streak, 350);
         userState.balance += streakBonus;
         
         // Save
@@ -353,12 +353,12 @@ async function claimDailyStreak() {
             id: Math.random().toString(36).substr(2, 9),
             amount: streakBonus,
             type: 'streak',
-            description: `Daily streak bonus Day ${userState.streak}`,
+            description: `Daily login streak Day ${userState.streak} bonus (${streakBonus} Coins)`,
             created_at: now.toISOString()
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-        alert(`🔥 Streak Claimed! Earned $${streakBonus.toFixed(2)} (Day ${userState.streak})`);
+        alert(`🔥 Streak Claimed! Earned ${streakBonus} Coins (Day ${userState.streak})`);
         
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim';
@@ -373,7 +373,7 @@ async function claimDailyStreak() {
             if (data.success) {
                 userState.balance = data.new_balance;
                 userState.streak = data.streak;
-                alert(`🔥 Streak Claimed! Earned $${data.reward.toFixed(2)} (Day ${data.streak})`);
+                alert(`🔥 Streak Claimed! Earned ${data.reward} Coins (Day ${data.streak})`);
             } else {
                 alert(data.error || 'Could not claim daily streak.');
             }
@@ -892,12 +892,12 @@ function shareReferralLink() {
    ========================================================================== */
 async function loadAchievements() {
     const milestones = [
-        { id: 'first_task', name: 'First Task', icon: '🌟', reward: 0.50, desc: 'Complete 1 task', check: (s) => s.completions >= 1 },
-        { id: 'streak_3', name: '3-Day Streak', icon: '🔥', reward: 1.00, desc: 'Reach 3 days login streak', check: (s) => s.streak >= 3 },
-        { id: 'first_survey', name: 'First Survey', icon: '📝', reward: 1.50, desc: 'Complete first research survey', check: (s) => s.completions >= 2 }, // dynamic logic approximation
-        { id: 'refer_1', name: 'First Refer', icon: '🤝', reward: 2.00, desc: 'Invite 1 active referral', check: (s) => s.completions >= 3 },
-        { id: 'high_earner', name: 'Level Up', icon: '⚡', reward: 5.00, desc: 'Reach Account Level 2+', check: (s) => s.level >= 2 },
-        { id: 'pro_achiever', name: 'Pro Earner', icon: '👑', reward: 10.00, desc: 'Earn a total balance of $25.00+', check: (s) => s.balance >= 25.00 }
+        { id: 'first_task', name: 'First Task', icon: '🌟', reward: 100, desc: 'Complete 1 task', check: (s) => s.completions >= 1 },
+        { id: 'streak_3', name: '3-Day Streak', icon: '🔥', reward: 250, desc: 'Reach 3 days login streak', check: (s) => s.streak >= 3 },
+        { id: 'first_survey', name: 'First Survey', icon: '📝', reward: 350, desc: 'Complete first research survey', check: (s) => s.completions >= 2 }, 
+        { id: 'refer_1', name: 'First Refer', icon: '🤝', reward: 500, desc: 'Invite 1 active referral', check: (s) => s.completions >= 3 },
+        { id: 'high_earner', name: 'Level Up', icon: '⚡', reward: 1000, desc: 'Reach Account Level 2+', check: (s) => s.level >= 2 },
+        { id: 'pro_achiever', name: 'Pro Earner', icon: '👑', reward: 2500, desc: 'Earn a total balance of 2500+ Coins', check: (s) => s.balance >= 2500 }
     ];
 
     const unlockedContainer = document.getElementById('achievements-unlocked-container');
@@ -908,13 +908,13 @@ async function loadAchievements() {
     unlockedContainer.innerHTML = '';
     lockedContainer.innerHTML = '';
 
-    // Calculate dynamic ranks
+    // Calculate dynamic ranks based on coins
     const totalEarnings = userState.balance;
     let userRank = '#247';
-    if (totalEarnings > 200) userRank = '#12';
-    else if (totalEarnings > 100) userRank = '#48';
-    else if (totalEarnings > 50) userRank = '#87';
-    else if (totalEarnings > 10) userRank = '#156';
+    if (totalEarnings > 10000) userRank = '#12';
+    else if (totalEarnings > 5000) userRank = '#48';
+    else if (totalEarnings > 2500) userRank = '#87';
+    else if (totalEarnings > 1000) userRank = '#156';
     
     document.getElementById('rewards-rank').innerText = userRank;
 
@@ -927,7 +927,7 @@ async function loadAchievements() {
         div.innerHTML = `
             <div class="achievement-icon">${m.icon}</div>
             <div class="achievement-name">${m.name}</div>
-            <div class="achievement-reward">+$${m.reward.toFixed(2)}</div>
+            <div class="achievement-reward">+${m.reward} Coins</div>
             <div style="font-size: 7px; color:rgba(255,255,255,0.4); margin-top:2px;">${m.desc}</div>
         `;
 
@@ -999,16 +999,16 @@ async function loadTransactions() {
         container.appendChild(div);
     });
 
-    document.getElementById('wallet-balance-display').innerText = `$${userState.balance.toFixed(2)}`;
+    document.getElementById('wallet-balance-display').innerText = `${Math.floor(userState.balance)} Coins`;
 }
 
 function selectPaymentMethod(method, minLimit) {
     selectedPaymentMethod = method;
-    minWithdrawalAmount = parseFloat(minLimit.replace('$', ''));
+    minWithdrawalAmount = parseFloat(minLimit.replace('Coins', '').trim());
     
     document.querySelectorAll('.payment-card').forEach(card => {
         const text = card.querySelector('.task-title').innerText;
-        if (text.includes(method)) {
+        if (text.includes(method.split(' ')[0])) {
             card.classList.add('active');
         } else {
             card.classList.remove('active');
@@ -1020,29 +1020,50 @@ function selectPaymentMethod(method, minLimit) {
     const accountLabel = document.getElementById('withdraw-account-label');
     const accountInput = document.getElementById('withdraw-account');
     
-    if (method.includes('PayPal')) {
-        accountLabel.innerText = 'PayPal Email Address';
-        accountInput.placeholder = 'name@email.com';
-        accountInput.type = 'email';
-    } else if (method.includes('Bank')) {
-        accountLabel.innerText = 'Bank Details (IBAN & Account Name)';
-        accountInput.placeholder = 'IBAN US1234567... / John Doe';
+    if (method.includes('Stars')) {
+        accountLabel.innerText = 'Telegram Username / ID';
+        accountInput.placeholder = '@username';
         accountInput.type = 'text';
-    } else {
+    } else if (method.includes('USDT')) {
         accountLabel.innerText = 'TON Wallet Address (USDT)';
         accountInput.placeholder = 'EQD...';
         accountInput.type = 'text';
+    } else {
+        accountLabel.innerText = 'TON Wallet Address (Direct TON)';
+        accountInput.placeholder = 'EQD...';
+        accountInput.type = 'text';
+    }
+    
+    // Update conversion display if modal is open
+    updateWithdrawalConversion();
+}
+
+function updateWithdrawalConversion() {
+    const amountVal = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+    const display = document.getElementById('withdraw-conversion-display');
+    if (!display) return;
+    
+    if (selectedPaymentMethod.includes('Stars')) {
+        const stars = Math.floor(amountVal / 17); // 17 coins = 1 star
+        display.innerText = `Equivalent: ${stars} Telegram Stars`;
+    } else if (selectedPaymentMethod.includes('USDT')) {
+        const usdt = (amountVal / 1700).toFixed(2);
+        display.innerText = `Equivalent: $${usdt} USDT (on TON)`;
+    } else {
+        const ton = (amountVal / 1700).toFixed(2);
+        display.innerText = `Equivalent: ${ton} TON`;
     }
 }
 
 function openWithdrawModal() {
     if (userState.balance < minWithdrawalAmount) {
-        alert(`Minimum withdrawal amount for ${selectedPaymentMethod} is $${minWithdrawalAmount.toFixed(2)}. Your current balance is $${userState.balance.toFixed(2)}.`);
+        alert(`Minimum withdrawal amount for ${selectedPaymentMethod} is ${minWithdrawalAmount} Coins. Your current balance is ${Math.floor(userState.balance)} Coins.`);
         return;
     }
     
-    document.getElementById('withdraw-amount').value = userState.balance.toFixed(2);
+    document.getElementById('withdraw-amount').value = Math.floor(userState.balance);
     document.getElementById('withdraw-modal').classList.add('active');
+    updateWithdrawalConversion();
 }
 
 function closeWithdrawModal() {
@@ -1054,7 +1075,7 @@ async function submitWithdrawal() {
     const accountVal = document.getElementById('withdraw-account').value.trim();
 
     if (isNaN(amountVal) || amountVal < minWithdrawalAmount) {
-        alert(`Please enter a valid amount (minimum $${minWithdrawalAmount.toFixed(2)})`);
+        alert(`Please enter a valid amount (minimum ${minWithdrawalAmount} Coins)`);
         return;
     }
 
@@ -1088,7 +1109,16 @@ async function submitWithdrawal() {
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-        alert(`💸 Withdrawal Request Submitted!\nAmount: $${amountVal.toFixed(2)}\nMethod: ${selectedPaymentMethod}\nProcessing time: 24-48 hours.`);
+        let payoutToken = "TON";
+        let payoutAmount = (amountVal / 1700).toFixed(2);
+        if (selectedPaymentMethod.includes('Stars')) {
+            payoutToken = "Stars";
+            payoutAmount = Math.floor(amountVal / 17);
+        } else if (selectedPaymentMethod.includes('USDT')) {
+            payoutToken = "USDT";
+        }
+
+        alert(`💸 Withdrawal Request Submitted!\nAmount: ${amountVal} Coins (Equivalent to ${payoutAmount} ${payoutToken})\nProcessing time: up to 24 hours.`);
         closeWithdrawModal();
         updateHeaderStats();
         loadTabContent();
@@ -1182,7 +1212,7 @@ async function loadLeaderboard() {
                 <div class="player-name">${leader.first_name} (@${leader.username})</div>
                 <div class="player-status">Active earner</div>
             </div>
-            <div class="score-display">$${parseFloat(leader.balance).toFixed(2)}</div>
+            <div class="score-display">${Math.floor(leader.balance)} Coins</div>
         `;
         container.appendChild(div);
     });
@@ -1198,7 +1228,7 @@ function setupMockDatabase() {
             username: 'telegram_earner',
             first_name: 'Pro',
             last_name: 'Earner',
-            balance: 124.80,
+            balance: 5200.00,
             streak: 7,
             last_login: new Date().toISOString()
         }));
@@ -1218,10 +1248,10 @@ function setupMockDatabase() {
 
     if (!localStorage.getItem('th_transactions')) {
         localStorage.setItem('th_transactions', JSON.stringify([
-            { id: 'tx1', amount: 28.50, type: 'referral', description: 'Referral Bonus: Invited @crypto_earner', created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
-            { id: 'tx2', amount: 0.45, type: 'task', description: 'Completed Watch Ads Task', created_at: new Date(Date.now() - 3600000 * 5).toISOString() },
-            { id: 'tx3', amount: 1.00, type: 'task', description: 'Completed Daily Mini Game', created_at: new Date(Date.now() - 3600000 * 24).toISOString() },
-            { id: 'tx4', amount: 5.00, type: 'streak', description: 'Daily login streak bonus (Day 7)', created_at: new Date(Date.now() - 3600000 * 28).toISOString() }
+            { id: 'tx1', amount: 5100.00, type: 'referral', description: 'Referral Bonus: Invited @crypto_earner', created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
+            { id: 'tx2', amount: 150.00, type: 'task', description: 'Completed Watch Ads Task', created_at: new Date(Date.now() - 3600000 * 5).toISOString() },
+            { id: 'tx3', amount: 300.00, type: 'task', description: 'Completed Daily Mini Game', created_at: new Date(Date.now() - 3600000 * 24).toISOString() },
+            { id: 'tx4', amount: 500.00, type: 'streak', description: 'Daily login streak bonus (Day 7)', created_at: new Date(Date.now() - 3600000 * 28).toISOString() }
         ]));
     }
 
@@ -1235,10 +1265,10 @@ function setupMockDatabase() {
 
     if (!localStorage.getItem('th_tasks')) {
         localStorage.setItem('th_tasks', JSON.stringify([
-            { id: 't1', title: '📺 Watch & Earn Videos', description: 'Watch 3 ads of 30 seconds each', reward: 0.45, task_type: 'quick', url: 'https://example.com/watch' },
-            { id: 't2', title: '🎮 Play Daily Mini Game', description: 'Score 1000+ points on the match-3 game', reward: 1.00, task_type: 'quick', url: 'https://example.com/game' },
-            { id: 't3', title: '📢 Join TaskHub Telegram Channel', description: 'Subscribe to our official updates channel', reward: 0.50, task_type: 'partner', url: 'https://t.me/taskhub_pro' },
-            { id: 't4', title: '🐦 Follow us on X/Twitter', description: 'Follow @TaskHubPro for active promo codes', reward: 0.75, task_type: 'partner', url: 'https://twitter.com/taskhub_pro' }
+            { id: 't1', title: '📺 Watch & Earn Videos', description: 'Watch 3 ads of 30 seconds each', reward: 150, task_type: 'quick', url: 'https://example.com/watch' },
+            { id: 't2', title: '🎮 Play Daily Mini Game', description: 'Score 1000+ points on the match-3 game', reward: 300, task_type: 'quick', url: 'https://example.com/game' },
+            { id: 't3', title: '📢 Join TaskHub Telegram Channel', description: 'Subscribe to our official updates channel', reward: 100, task_type: 'partner', url: 'https://t.me/taskhub_pro' },
+            { id: 't4', title: '🐦 Follow us on X/Twitter', description: 'Follow @TaskHubPro for active promo codes', reward: 200, task_type: 'partner', url: 'https://twitter.com/taskhub_pro' }
         ]));
     }
 
@@ -1248,7 +1278,7 @@ function setupMockDatabase() {
                 id: 's1',
                 title: '📊 Consumer Behavior Study',
                 description: 'A quick survey to understand shopping preferences and online consumer choices.',
-                reward: 2.25,
+                reward: 500,
                 duration_minutes: 10,
                 questions: [
                     { id: "q1", text: "How often do you shop online?", type: "radio", options: ["Daily", "Weekly", "Monthly", "Rarely"] },
@@ -1260,7 +1290,7 @@ function setupMockDatabase() {
                 id: 's2',
                 title: '📱 Brand Awareness Survey',
                 description: 'Help us identify popular tech brands and your personal device loyalty.',
-                reward: 4.00,
+                reward: 1000,
                 duration_minutes: 8,
                 questions: [
                     { id: "q1", text: "Which mobile operating system do you use?", type: "radio", options: ["Android", "iOS", "Other"] },

@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- Index on referred_by for fast query of referrals
 CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by);
 
+-- Helper function to increment balance via RPC
+CREATE OR REPLACE FUNCTION increment_user_balance(user_id BIGINT, amount NUMERIC)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE users
+    SET balance = balance + amount
+    WHERE telegram_id = user_id;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 2. Tasks Table
 CREATE TABLE IF NOT EXISTS tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -73,11 +83,11 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
 
 -- Insert initial sample tasks
 INSERT INTO tasks (title, description, reward, task_type, url) VALUES
-('📺 Watch & Earn Videos', 'Watch 3 ads of 30 seconds each', 0.45, 'quick', 'https://example.com/watch'),
-('🎮 Play Daily Mini Game', 'Score 1000+ points on the match-3 game', 1.00, 'quick', 'https://example.com/game'),
-('📢 Join TaskHub Telegram Channel', 'Subscribe to our official updates channel', 0.50, 'partner', 'https://t.me/taskhub_pro'),
-('🐦 Follow us on X/Twitter', 'Follow @TaskHubPro for active promo codes', 0.75, 'partner', 'https://twitter.com/taskhub_pro'),
-('🎯 Flash Deal - Limited Time', 'Complete 3 partner offers', 5.25, 'featured', 'https://example.com/offers')
+('📺 Watch & Earn Videos', 'Watch 3 ads of 30 seconds each', 150.00, 'quick', 'https://example.com/watch'),
+('🎮 Play Daily Mini Game', 'Score 1000+ points on the match-3 game', 300.00, 'quick', 'https://example.com/game'),
+('📢 Join TaskHub Telegram Channel', 'Subscribe to our official updates channel', 100.00, 'partner', 'https://t.me/taskhub_pro'),
+('🐦 Follow us on X/Twitter', 'Follow @TaskHubPro for active promo codes', 200.00, 'partner', 'https://twitter.com/taskhub_pro'),
+('🎯 Flash Deal - Limited Time', 'Complete 3 partner offers', 1700.00, 'featured', 'https://example.com/offers')
 ON CONFLICT DO NOTHING;
 
 -- Insert initial sample surveys
@@ -85,7 +95,7 @@ INSERT INTO surveys (title, description, reward, duration_minutes, questions) VA
 (
     '📊 Consumer Behavior Study', 
     'A quick survey to understand shopping preferences and online consumer choices.', 
-    2.25, 
+    500.00, 
     10, 
     '[
         {"id": "q1", "text": "How often do you shop online?", "type": "radio", "options": ["Daily", "Weekly", "Monthly", "Rarely"]},
@@ -96,7 +106,7 @@ INSERT INTO surveys (title, description, reward, duration_minutes, questions) VA
 (
     '📱 Brand Awareness Survey', 
     'Help us identify popular tech brands and your personal device loyalty.', 
-    4.00, 
+    1000.00, 
     8, 
     '[
         {"id": "q1", "text": "Which mobile operating system do you use?", "type": "radio", "options": ["Android", "iOS", "Other"]},

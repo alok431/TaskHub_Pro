@@ -185,7 +185,7 @@ export default {
 
           // If there is a referrer, reward them
           if (referredBy) {
-            const referralBonus = 2.00;
+            const referralBonus = 250.00;
             // Update referrer balance
             const { error: refUpdateErr } = await supabase.rpc('increment_user_balance', {
               user_id: referredBy,
@@ -255,8 +255,8 @@ export default {
           }
         }
 
-        // Spin rewards configuration
-        const rewards = [0.10, 0.25, 0.50, 1.00, 2.50, 5.00];
+        // Spin rewards configuration (Coins)
+        const rewards = [20, 50, 100, 250, 500, 1700];
         const weights = [45, 30, 15, 7, 2.5, 0.5]; // Cumulative or weighted selection
         
         // Simple weighted choice
@@ -290,7 +290,7 @@ export default {
           user_id: tgUser.telegram_id,
           amount: spinReward,
           type: 'spin',
-          description: `Won $${spinReward.toFixed(2)} on Daily Lucky Spin`
+          description: `Won ${spinReward} Coins on Daily Lucky Spin`
         });
 
         return corsResponse({
@@ -325,8 +325,8 @@ export default {
           currentStreak = 1;
         }
 
-        // Streak reward calculations: $0.10 * streak day (max $1.00 per day)
-        const streakBonus = Math.min(0.10 * currentStreak, 1.00);
+        // Streak reward calculations: 50 Coins * streak day (max 350 coins per day)
+        const streakBonus = Math.min(50 * currentStreak, 350);
 
         const newBalance = Number(user.balance) + streakBonus;
         await supabase
@@ -343,7 +343,7 @@ export default {
           user_id: tgUser.telegram_id,
           amount: streakBonus,
           type: 'streak',
-          description: `Login streak day ${currentStreak} bonus`
+          description: `Daily login streak Day ${currentStreak} bonus (${streakBonus} Coins)`
         });
 
         return corsResponse({
@@ -547,7 +547,7 @@ export default {
           referral_code: tgUser.telegram_id,
           referrals: referredUsers || [],
           total_earnings: totalEarnings,
-          referral_bonus_rate: 2.00
+          referral_bonus_rate: 250.00
         });
       }
 

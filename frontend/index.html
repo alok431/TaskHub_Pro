@@ -65,7 +65,7 @@
                 <div class="featured-card" id="featured-task-container">
                     <div class="featured-title">🎯 Flash Deal - Limited Time</div>
                     <div class="featured-desc">Complete 3 offerwall tasks in next 4 hours</div>
-                    <div class="task-reward" id="featured-task-reward">Earn $5.25</div>
+                    <div class="task-reward" id="featured-task-reward">Earn 1700 Coins</div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 45%;"></div>
                     </div>
@@ -79,7 +79,7 @@
                     <div class="loading-placeholder">Loading tasks...</div>
                 </div>
 
-                <div class="section-title">🏆 Weekly Leaderboard (Prize Pool: $500)</div>
+                <div class="section-title">🏆 Weekly Leaderboard (Prize Pool: 170,000 Coins / 100 TON)</div>
                 <div id="leaderboard-container">
                     <!-- Leaderboard will be loaded dynamically -->
                     <div class="loading-placeholder">Loading leaderboard...</div>
@@ -133,7 +133,7 @@
             <div id="refer" class="content">
                 <div class="featured-card referral-header-card">
                     <div class="featured-title">👥 Refer & Earn Program</div>
-                    <div class="featured-desc">Invite friends to TaskHub Pro and earn a flat <strong>$2.00 cash bonus</strong> when they join!</div>
+                    <div class="featured-desc">Invite friends to TaskHub Pro and earn a flat <strong>250 Coins bonus</strong> when they join!</div>
                     
                     <div class="referral-link-box">
                         <input type="text" id="referral-link-input" value="https://t.me/taskhub_pro_bot/app?startapp=loading" readonly>
@@ -152,7 +152,7 @@
                         <div class="stat-label">Total Referrals</div>
                     </div>
                     <div class="stat-mini">
-                        <div class="stat-value" id="ref-total-earnings">$0.00</div>
+                        <div class="stat-value" id="ref-total-earnings">0 Coins</div>
                         <div class="stat-label">Referral Earnings</div>
                     </div>
                 </div>
@@ -167,8 +167,8 @@
             <div id="achievements" class="content">
                 <div class="bonus-pool">
                     <div class="pool-title">🏆 Weekly Bonus Pool</div>
-                    <div class="pool-amount">$2,450</div>
-                    <div class="pool-desc">Distributed to top 100 earners daily. You are ranked <span id="rewards-rank">#...</span></div>
+                    <div class="pool-amount">1,000 TON</div>
+                    <div class="pool-desc">Distributed to top 100 earners weekly. You are ranked <span id="rewards-rank">#...</span></div>
                     <button class="btn-secondary" onclick="switchTab(null, 'home')">Climb Leaderboard →</button>
                 </div>
 
@@ -187,40 +187,40 @@
             <div id="wallet" class="content">
                 <div class="featured-card">
                     <div class="featured-title">💰 Account Balance</div>
-                    <div class="wallet-balance" id="wallet-balance-display">$0.00</div>
+                    <div class="wallet-balance" id="wallet-balance-display">0 Coins</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <button class="btn-primary" onclick="openWithdrawModal()">Withdraw</button>
-                        <button class="btn-outline" onclick="alert('Deposits will be integrated with Telegram Stars / CryptoPay.')">Add Balance</button>
+                        <button class="btn-outline" onclick="alert('Deposits will be integrated with TON Gateway.')">Add Balance</button>
                     </div>
                 </div>
 
-                <div class="section-title">💳 Payout Methods</div>
+                <div class="section-title">💳 Payout Methods (1700 Coins = 1 TON)</div>
                 <div class="payment-methods-list">
-                    <div class="task-card payment-card active" onclick="selectPaymentMethod('PayPal', '$5')">
+                    <div class="task-card payment-card active" onclick="selectPaymentMethod('TON Direct (TON)', '1700 Coins')">
                         <div class="payment-header">
                             <div>
-                                <div class="task-title">PayPal</div>
-                                <div class="task-desc">Instant payout • Min withdrawal: $5.00</div>
+                                <div class="task-title">TON Blockchain (Direct)</div>
+                                <div class="task-desc">Direct TON payment • Min withdrawal: 1700 Coins (1 TON)</div>
                             </div>
                             <span class="payout-badge">Select</span>
                         </div>
                     </div>
 
-                    <div class="task-card payment-card" onclick="selectPaymentMethod('Bank Transfer', '$10')">
+                    <div class="task-card payment-card" onclick="selectPaymentMethod('USDT on TON (USDT)', '1700 Coins')">
                         <div class="payment-header">
                             <div>
-                                <div class="task-title">Bank Transfer</div>
-                                <div class="task-desc">Direct to local bank • Min withdrawal: $10.00</div>
+                                <div class="task-title">USDT on TON</div>
+                                <div class="task-desc">Stablecoin payout • Min withdrawal: 1700 Coins ($1.00)</div>
                             </div>
                             <span class="payout-badge">Select</span>
                         </div>
                     </div>
 
-                    <div class="task-card payment-card" onclick="selectPaymentMethod('Crypto (USDT-TON)', '$1')">
+                    <div class="task-card payment-card" onclick="selectPaymentMethod('Telegram Stars (Stars)', '850 Coins')">
                         <div class="payment-header">
                             <div>
-                                <div class="task-title">Crypto (USDT on TON)</div>
-                                <div class="task-desc">Decentralized payout • Min withdrawal: $1.00</div>
+                                <div class="task-title">Telegram Stars</div>
+                                <div class="task-desc">Sent to your Telegram account • Min withdrawal: 850 Coins (50 Stars)</div>
                             </div>
                             <span class="payout-badge">Select</span>
                         </div>
@@ -241,18 +241,19 @@
                         </div>
                         <div class="modal-body">
                             <p style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 12px;">
-                                Selected Method: <strong style="color: #10b981;" id="selected-payout-method">PayPal</strong>
+                                Selected Method: <strong style="color: #10b981;" id="selected-payout-method">TON Direct (TON)</strong>
                             </p>
                             <div class="form-group">
-                                <label for="withdraw-amount">Amount to Withdraw ($)</label>
-                                <input type="number" id="withdraw-amount" placeholder="0.00" step="0.01" min="1">
+                                <label for="withdraw-amount">Amount to Withdraw (Coins)</label>
+                                <input type="number" id="withdraw-amount" placeholder="1700" step="1" min="850" oninput="updateWithdrawalConversion()">
+                                <div id="withdraw-conversion-display" style="font-size: 10px; color: #fbbf24; margin-top: 4px; font-weight: 600;">Equivalent: 1.00 TON</div>
                             </div>
                             <div class="form-group">
-                                <label for="withdraw-account" id="withdraw-account-label">PayPal Email Address</label>
-                                <input type="text" id="withdraw-account" placeholder="name@email.com">
+                                <label for="withdraw-account" id="withdraw-account-label">TON Wallet Address</label>
+                                <input type="text" id="withdraw-account" placeholder="EQD...">
                             </div>
                             <div style="font-size: 9px; color: rgba(245, 158, 11, 0.8); margin-top: 8px;">
-                                * Payouts are manually approved and processed within 24-48 hours.
+                                * Direct blockchain payouts are completed within 24 hours.
                             </div>
                         </div>
                         <div class="modal-footer">
