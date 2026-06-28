@@ -157,6 +157,9 @@ async function loadUserProfile() {
                 method: 'GET',
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
+            if (!response.ok) {
+                throw new Error(`User API responded with status ${response.status}`);
+            }
             const data = await response.json();
             if (data.user) {
                 userState.telegram_id = data.user.telegram_id;
@@ -172,12 +175,18 @@ async function loadUserProfile() {
                 const tasksRes = await fetch(`${API_BASE_URL}/api/tasks`, {
                     headers: { 'X-Telegram-Init-Data': getAuthHeader() }
                 });
+                if (!tasksRes.ok) {
+                    throw new Error(`Tasks API responded with status ${tasksRes.status}`);
+                }
                 const tasks = await tasksRes.json();
                 const taskCompletedCount = tasks.filter(t => t.completed).length;
 
                 const surveyRes = await fetch(`${API_BASE_URL}/api/surveys`, {
                     headers: { 'X-Telegram-Init-Data': getAuthHeader() }
                 });
+                if (!surveyRes.ok) {
+                    throw new Error(`Surveys API responded with status ${surveyRes.status}`);
+                }
                 const surveys = await surveyRes.json();
                 const surveyCompletedCount = surveys.filter(s => s.completed).length;
 
@@ -195,7 +204,7 @@ async function loadUserProfile() {
 
 // Update Header elements
 function updateHeaderStats() {
-    document.getElementById('stat-balance').innerText = `$${userState.balance.toFixed(2)}`;
+    document.getElementById('stat-balance').innerText = `${Math.floor(userState.balance)} Coins`;
     document.getElementById('stat-completed').innerText = userState.completions;
     document.getElementById('stat-streak').innerText = `${userState.streak}d`;
     document.getElementById('user-level').innerText = `LEVEL ${userState.level}`;
@@ -405,6 +414,9 @@ async function loadQuickTasks() {
             const res = await fetch(`${API_BASE_URL}/api/tasks`, {
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
+            if (!res.ok) {
+                throw new Error(`Tasks API responded with status ${res.status}`);
+            }
             tasks = (await res.json()).filter(t => t.task_type === 'quick');
         } catch (err) {
             console.error(err);
@@ -429,7 +441,7 @@ async function loadQuickTasks() {
                     <div class="task-desc">${task.description}</div>
                 </div>
             </div>
-            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn $${parseFloat(task.reward).toFixed(2)}</span>`}
+            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn ${Math.floor(task.reward)} Coins</span>`}
             ${task.completed ? '' : `<button class="btn-primary" id="btn-task-${task.id}" onclick="startTask('${task.id}', '${task.url}')">Start Now →</button>`}
         `;
         container.appendChild(div);
@@ -450,6 +462,9 @@ async function loadPartnerTasks() {
             const res = await fetch(`${API_BASE_URL}/api/tasks`, {
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
+            if (!res.ok) {
+                throw new Error(`Partner tasks API responded with status ${res.status}`);
+            }
             tasks = (await res.json()).filter(t => t.task_type === 'partner');
         } catch (err) {
             console.error(err);
@@ -474,7 +489,7 @@ async function loadPartnerTasks() {
                     <div class="task-desc">${task.description}</div>
                 </div>
             </div>
-            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn $${parseFloat(task.reward).toFixed(2)}</span>`}
+            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn ${Math.floor(task.reward)} Coins</span>`}
             ${task.completed ? '' : `<button class="btn-primary" id="btn-task-${task.id}" onclick="startTask('${task.id}', '${task.url}')">Subscribe / Follow →</button>`}
         `;
         container.appendChild(div);
@@ -606,6 +621,9 @@ async function loadSurveys() {
             const res = await fetch(`${API_BASE_URL}/api/surveys`, {
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
+            if (!res.ok) {
+                throw new Error(`Surveys API responded with status ${res.status}`);
+            }
             surveys = await res.json();
         } catch (err) {
             console.error(err);
@@ -631,7 +649,7 @@ async function loadSurveys() {
                     <div style="font-size: 8px; color: rgba(255,255,255,0.4); margin-top: 3px;">⏱️ Est. duration: ${survey.duration_minutes} mins</div>
                 </div>
             </div>
-            ${survey.completed ? '<span class="completed-tag">✓ Submitted</span>' : `<span class="reward-tag">Earn $${parseFloat(survey.reward).toFixed(2)}</span>`}
+            ${survey.completed ? '<span class="completed-tag">✓ Submitted</span>' : `<span class="reward-tag">Earn ${Math.floor(survey.reward)} Coins</span>`}
             ${survey.completed ? '' : `<button class="btn-primary" onclick='openSurveyPlayer(${JSON.stringify(survey)})'>Qualify & Start →</button>`}
         `;
         container.appendChild(div);
@@ -812,16 +830,19 @@ async function loadReferralData() {
         input.value = referralLink;
     }
 
-    let stats = { referrals: [], total_earnings: 0.00 };
+    let stats = { referrals: [], total_earnings: 0 };
 
     if (useMockData) {
         stats.referrals = JSON.parse(localStorage.getItem('th_referrals') || '[]');
-        stats.total_earnings = stats.referrals.length * 2.00;
+        stats.total_earnings = stats.referrals.length * 250;
     } else {
         try {
             const res = await fetch(`${API_BASE_URL}/api/referrals`, {
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
+            if (!res.ok) {
+                throw new Error(`Referrals API responded with status ${res.status}`);
+            }
             stats = await res.json();
         } catch (err) {
             console.error(err);
@@ -832,7 +853,7 @@ async function loadReferralData() {
 
     // Set stats UI
     document.getElementById('ref-total-count').innerText = stats.referrals.length;
-    document.getElementById('ref-total-earnings').innerText = `$${parseFloat(stats.total_earnings).toFixed(2)}`;
+    document.getElementById('ref-total-earnings').innerText = `${Math.floor(stats.total_earnings)} Coins`;
 
     // Set Referred List UI
     const container = document.getElementById('referred-list-container');
@@ -854,7 +875,7 @@ async function loadReferralData() {
                 <div class="player-name">@${ref.username || 'anonymous'}</div>
                 <div class="player-status">Joined ${joinDate}</div>
             </div>
-            <div class="score-display">+$2.00</div>
+            <div class="score-display">+250 Coins</div>
         `;
         container.appendChild(div);
     });
@@ -1165,17 +1186,20 @@ async function loadLeaderboard() {
     let leaders = [];
     if (useMockData) {
         leaders = [
-            { username: 'elite_earner', first_name: 'Elite', balance: 245.00 },
-            { username: 'task_master92', first_name: 'Task Master', balance: 189.50 },
-            { username: 'hustle_pro', first_name: 'Hustle Pro', balance: 156.20 },
-            { username: 'crypto_champ', first_name: 'TON Champ', balance: 110.80 },
-            { username: 'tg_earner', first_name: 'Alex', balance: 94.30 }
+            { username: 'elite_earner', first_name: 'Elite', balance: 24500 },
+            { username: 'task_master92', first_name: 'Task Master', balance: 18950 },
+            { username: 'hustle_pro', first_name: 'Hustle Pro', balance: 15620 },
+            { username: 'crypto_champ', first_name: 'TON Champ', balance: 11080 },
+            { username: 'tg_earner', first_name: 'Alex', balance: 9430 }
         ];
     } else {
         try {
             const res = await fetch(`${API_BASE_URL}/api/leaderboard`, {
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
+            if (!res.ok) {
+                throw new Error(`Leaderboard API responded with status ${res.status}`);
+            }
             leaders = await res.json();
         } catch (err) {
             console.error(err);
