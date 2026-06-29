@@ -2,10 +2,30 @@
 
 // Initialize Telegram WebApp SDK
 const WebApp = window.Telegram?.WebApp;
+
+// Dynamic Viewport Height management for mobile & Telegram WebApp
+function updateViewportHeight() {
+    let height = window.innerHeight;
+    if (WebApp && WebApp.viewportHeight) {
+        height = WebApp.viewportHeight;
+    }
+    document.documentElement.style.setProperty('--vh', `${height}px`);
+}
+
 if (WebApp) {
     WebApp.ready();
     WebApp.expand();
+    
+    // Listen to Telegram viewport changes
+    WebApp.onEvent('viewportChanged', updateViewportHeight);
 }
+
+// Listen to standard window resize/orientation changes
+window.addEventListener('resize', updateViewportHeight);
+window.addEventListener('orientationchange', updateViewportHeight);
+
+// Initial set on script load
+updateViewportHeight();
 
 // Configuration
 // In production, change this to your deployed Cloudflare Workers URL
@@ -74,6 +94,7 @@ let surveyAnswers = {};
 
 // Initialization
 document.addEventListener('DOMContentLoaded', async () => {
+    updateViewportHeight();
     initTheme();
     console.log("TaskHub Pro Initializing...");
     

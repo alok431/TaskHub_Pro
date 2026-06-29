@@ -15,6 +15,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: var(--vh, 100vh);
 }
 
 .app-container {
@@ -22,7 +23,9 @@ body {
     width: 100%;
     max-width: 480px;
     height: 100vh;
+    height: var(--vh, 100vh);
     min-height: 100vh;
+    min-height: var(--vh, 100vh);
     color: white;
     display: flex;
     flex-direction: column;
@@ -135,7 +138,7 @@ body {
     gap: 4px;
     background: rgba(6, 22, 19, 0.95);
     border-top: 1.5px solid rgba(16, 185, 129, 0.25);
-    padding: 10px 4px 14px;
+    padding: 10px 4px calc(14px + env(safe-area-inset-bottom, 0px));
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(15px);
