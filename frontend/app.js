@@ -1538,57 +1538,28 @@ let activeGame = null;
 let gameTimer = null;
 let gameScore = 0;
 
-function openGamesHub() {
-    const modal = document.getElementById('game-modal');
-    if (!modal) return;
+function toggleInlineGames() {
+    const list = document.getElementById('inline-games-list');
+    const arrow = document.getElementById('games-arrow');
+    if (!list || !arrow) return;
     
-    modal.classList.add('active');
-    renderGamesList();
-}
-
-function renderGamesList() {
-    const title = document.getElementById('game-modal-title');
-    const body = document.getElementById('game-modal-body');
-    if (!title || !body) return;
-    
-    title.innerText = '🎮 Game Zone';
-    
-    // Clear any active game timers
-    if (gameTimer) {
-        clearInterval(gameTimer);
-        gameTimer = null;
+    if (list.style.display === 'none') {
+        list.style.display = 'block';
+        arrow.style.transform = 'rotate(180deg)';
+        arrow.style.transition = 'transform 0.3s ease';
+    } else {
+        list.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
     }
-    
-    body.innerHTML = `
-        <p style="font-size: 10px; color: #64748b; margin-bottom: 8px; text-align: center;">
-            Choose a game to play and earn coins!
-        </p>
-        <div class="games-hub-list">
-            <div class="hub-game-card" onclick="openGame('match3')">
-                <div class="hub-game-icon">🧩</div>
-                <div class="hub-game-info">
-                    <h4>Memory Match</h4>
-                    <p>Match pairs in 35s • +300 Coins</p>
-                </div>
-                <button class="hub-game-play-btn">Play</button>
-            </div>
-            
-            <div class="hub-game-card" onclick="openGame('clicker')">
-                <div class="hub-game-icon">⛏️</div>
-                <div class="hub-game-info">
-                    <h4>Coin Clicker</h4>
-                    <p>Tap coin 50 times • +200 Coins</p>
-                </div>
-                <button class="hub-game-play-btn">Play</button>
-            </div>
-        </div>
-    `;
 }
 
 function openGame(gameType) {
+    const modal = document.getElementById('game-modal');
     const title = document.getElementById('game-modal-title');
     const body = document.getElementById('game-modal-body');
-    if (!title || !body) return;
+    if (!modal || !title || !body) return;
+    
+    modal.classList.add('active');
     
     if (gameTimer) clearInterval(gameTimer);
     

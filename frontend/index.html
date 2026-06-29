@@ -109,12 +109,35 @@
                 </div>
 
                 <!-- PLAY GAMES & EARN BANNER -->
-                <div class="games-banner-card" onclick="openGamesHub()">
+                <div class="games-banner-card" onclick="toggleInlineGames()">
                     <div class="games-banner-content">
                         <h3>🎮 Play Games & Earn</h3>
                         <p>Play fun mini-games to win free coins daily</p>
                     </div>
-                    <div class="games-banner-arrow">→</div>
+                    <div class="games-banner-arrow" id="games-arrow">↓</div>
+                </div>
+
+                <!-- INLINE GAMES LIST -->
+                <div id="inline-games-list" style="display: none; margin-bottom: 24px;">
+                    <div class="games-hub-list">
+                        <div class="hub-game-card" onclick="openGame('match3')">
+                            <div class="hub-game-icon">🧩</div>
+                            <div class="hub-game-info">
+                                <h4>Memory Match</h4>
+                                <p>Match pairs in 35s • +300 Coins</p>
+                            </div>
+                            <button class="hub-game-play-btn">Play</button>
+                        </div>
+                        
+                        <div class="hub-game-card" onclick="openGame('clicker')">
+                            <div class="hub-game-icon">⛏️</div>
+                            <div class="hub-game-info">
+                                <h4>Coin Clicker</h4>
+                                <p>Tap coin 50 times • +200 Coins</p>
+                            </div>
+                            <button class="hub-game-play-btn">Play</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="section-title">⚡ Featured Tasks</div>
