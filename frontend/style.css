@@ -140,6 +140,13 @@ body {
 
 /* TAB BAR (STICKY BOTTOM NAVIGATION) */
 .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    z-index: 999;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 4px;
@@ -150,7 +157,6 @@ body {
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    width: 100%;
 }
 
 .tab-btn {
@@ -1031,7 +1037,7 @@ body {
 
 /* CONTAINER BOTTOM */
 .container-bottom {
-    padding-bottom: 40px;
+    padding-bottom: 80px;
 }
 
 /* CUSTOM TOAST NOTIFICATION */
