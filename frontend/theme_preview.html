@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Base Layout Styles (Independent of Theme) */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { padding: 20px; transition: all 0.3s ease; min-height: 100vh; display: flex; flex-direction: column; align-items: center;}
+        
+        .theme-selector {
+            display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center;
+            background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px);
+            max-width: 800px;
+        }
+        .theme-btn {
+            padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+            background: #3b82f6; color: white; transition: 0.2s; font-size: 14px;
+        }
+        .theme-btn:hover { opacity: 0.8; transform: scale(1.05); }
+        .theme-btn.active-btn { background: #10b981; border: 2px solid #fff; }
+
+        /* The App Container Mockup */
+        .app-mockup {
+            width: 100%; max-width: 400px; height: 750px; 
+            border-radius: 30px; overflow: hidden; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+
+        .header { padding: 20px; padding-top: 30px; display: flex; flex-direction: column; gap: 15px; transition: all 0.5s ease; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: 800; transition: all 0.5s ease; }
+        .profile { display: flex; align-items: center; gap: 10px; padding: 5px 10px; border-radius: 20px; transition: all 0.5s ease;}
+        
+        .stats { display: flex; justify-content: space-between; margin-top: 10px; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 24px; font-weight: bold; transition: all 0.5s ease; }
+        .stat-lbl { font-size: 11px; opacity: 0.7; }
+
+        .content { padding: 20px; display: flex; flex-direction: column; gap: 15px; height: 100%; transition: all 0.5s ease; }
+        .card { padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 10px; transition: all 0.3s; cursor: pointer; }
+        .card-title { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .btn { padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; transition: 0.2s; }
+
+        /* ================= THEME 1: NEON CYBERPUNK ================= */
+        body.theme-cyberpunk { background: #050510; color: #fff; }
+        .theme-cyberpunk .app-mockup { background: #090914; border: 2px solid #ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.3); }
+        .theme-cyberpunk .header { background: linear-gradient(180deg, #120a2a 0%, #090914 100%); border-bottom: 1px solid #00ffff; }
+        .theme-cyberpunk .logo { color: #00ffff; text-shadow: 0 0 10px #00ffff; }
+        .theme-cyberpunk .profile { background: rgba(255,0,255,0.2); border: 1px solid #ff00ff; }
+        .theme-cyberpunk .stat-val { color: #ff00ff; text-shadow: 0 0 8px #ff00ff; }
+        .theme-cyberpunk .card { background: #0f0f1f; border: 1px solid #00ffff; box-shadow: inset 0 0 15px rgba(0,255,255,0.1); }
+        .theme-cyberpunk .card:hover { transform: translateY(-3px); box-shadow: 0 0 15px rgba(0,255,255,0.5); }
+        .theme-cyberpunk .btn { background: #ff00ff; color: #fff; box-shadow: 0 0 10px #ff00ff; }
+        .theme-cyberpunk .btn:hover { background: #fff; color: #ff00ff; box-shadow: 0 0 20px #ff00ff; }
+
+        /* ================= THEME 2: LUXURY CRYPTO (GOLD) ================= */
+        body.theme-luxury { background: #0a0a0a; color: #e5e5e5; }
+        .theme-luxury .app-mockup { background: #111; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+        .theme-luxury .header { background: linear-gradient(180deg, #1a1a1a 0%, #111 100%); }
+        .theme-luxury .logo { color: #d4af37; background: linear-gradient(90deg, #d4af37, #f3e5ab); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-luxury .profile { background: #1a1a1a; border: 1px solid #d4af37; color: #d4af37; }
+        .theme-luxury .stat-val { color: #d4af37; }
+        .theme-luxury .card { background: linear-gradient(145deg, #1a1a1a, #111); border: 1px solid rgba(212, 175, 55, 0.3); }
+        .theme-luxury .card:hover { border-color: #d4af37; }
+        .theme-luxury .btn { background: linear-gradient(90deg, #d4af37, #b8860b); color: #000; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ================= THEME 3: COSMIC GLASSMORPHISM ================= */
+        body.theme-glass { background: linear-gradient(135deg, #0f172a 0%, #312e81 50%, #064e3b 100%); color: #fff; }
+        .theme-glass .app-mockup { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
+        .theme-glass .header { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .theme-glass .logo { color: #fff; }
+        .theme-glass .profile { background: rgba(255,255,255,0.15); }
+        .theme-glass .stat-val { color: #67e8f9; }
+        .theme-glass .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
+        .theme-glass .card:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+        .theme-glass .btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; }
+        .theme-glass .btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* ================= THEME 4: VIBRANT GAMIFIED ================= */
+        body.theme-vibrant { background: #4f46e5; color: #fff; }
+        .theme-vibrant .app-mockup { background: #3730a3; border: 4px solid #1e1b4b; border-radius: 40px; }
+        .theme-vibrant .header { background: #4338ca; border-bottom: 4px solid #312e81; padding-bottom: 25px; }
+        .theme-vibrant .logo { color: #facc15; font-size: 24px; text-transform: uppercase; -webkit-text-stroke: 1px #854d0e; }
+        .theme-vibrant .profile { background: #10b981; color: white; border: 2px solid #047857; font-weight: bold; }
+        .theme-vibrant .stat-val { color: #facc15; }
+        .theme-vibrant .card { background: #4f46e5; border: 3px solid #312e81; border-bottom: 6px solid #312e81; border-radius: 20px; }
+        .theme-vibrant .card:active { border-bottom-width: 3px; transform: translateY(3px); }
+        .theme-vibrant .btn { background: #facc15; color: #713f12; border: 3px solid #ca8a04; border-bottom: 6px solid #ca8a04; border-radius: 15px; font-size: 16px; }
+        .theme-vibrant .btn:active { border-bottom-width: 3px; transform: translateY(3px); margin-bottom: 3px; }
+
+        /* ================= THEME 5: RETRO ARCADE ================= */
+        body.theme-arcade { background: #222; color: #0f0; font-family: monospace, sans-serif; }
+        .theme-arcade .app-mockup { background: #111; border: 4px solid #fff; border-radius: 0; box-shadow: 10px 10px 0px #0f0; }
+        .theme-arcade .header { background: #000; border-bottom: 4px dashed #fff; }
+        .theme-arcade .logo { color: #ff0; text-shadow: 2px 2px 0px #f00; letter-spacing: 2px; }
+        .theme-arcade .profile { background: #000; color: #fff; border: 2px solid #fff; border-radius: 0; }
+        .theme-arcade .stat-val { color: #f0f; }
+        .theme-arcade .card { background: #000; border: 2px solid #0f0; border-radius: 0; }
+        .theme-arcade .card:hover { background: #0f0; color: #000; }
+        .theme-arcade .card:hover .card-title, .theme-arcade .card:hover p { color: #000; }
+        .theme-arcade .btn { background: #f00; color: #fff; border: 2px solid #fff; border-radius: 0; box-shadow: 4px 4px 0px #fff; text-transform: uppercase; }
+        .theme-arcade .btn:active { box-shadow: 0 0 0; transform: translate(4px, 4px); }
+
+        /* ================= THEME 6: SUNSET GRADIENT ================= */
+        body.theme-sunset { background: linear-gradient(135deg, #ff7e5f, #feb47b); color: #2d3748; }
+        .theme-sunset .app-mockup { background: #fff; border: none; box-shadow: 0 20px 40px rgba(255,126,95,0.4); }
+        .theme-sunset .header { background: #fff; border-bottom: 1px solid #edf2f7; }
+        .theme-sunset .logo { background: linear-gradient(90deg, #ff7e5f, #fe5f75); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-sunset .profile { background: #fff5f5; color: #e53e3e; border-radius: 20px; }
+        .theme-sunset .stat-val { color: #dd6b20; }
+        .theme-sunset .card { background: #fff; border: 1px solid #fbd38d; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .theme-sunset .card:hover { transform: translateY(-5px); box-shadow: 0 15px 25px rgba(255,126,95,0.2); }
+        .theme-sunset .btn { background: linear-gradient(90deg, #ff7e5f, #feb47b); color: white; box-shadow: 0 5px 15px rgba(255,126,95,0.4); border: none; }
+        .theme-sunset .btn:hover { background: linear-gradient(90deg, #feb47b, #ff7e5f); }
+
+        /* ================= THEME 7: DARK FOREST ================= */
+        body.theme-forest { background: #064e3b; color: #ecfdf5; }
+        .theme-forest .app-mockup { background: #022c22; border: 2px solid #10b981; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .theme-forest .header { background: #064e3b; border-bottom: 2px solid #059669; }
+        .theme-forest .logo { color: #34d399; }
+        .theme-forest .profile { background: #065f46; border: 1px solid #10b981; }
+        .theme-forest .stat-val { color: #a7f3d0; }
+        .theme-forest .card { background: #064e3b; border: 1px solid #059669; }
+        .theme-forest .card:hover { border-color: #34d399; background: #065f46; }
+        .theme-forest .btn { background: #10b981; color: #022c22; font-weight: 800; border-radius: 8px; border: none; }
+        .theme-forest .btn:hover { background: #34d399; }
+
+        /* ================= THEME 8: HOLOGRAPHIC PEARL ================= */
+        body.theme-pearl { background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); color: #4a5568; }
+        .theme-pearl .app-mockup { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 20px 40px rgba(131,164,212,0.15); }
+        .theme-pearl .header { background: rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.8); }
+        .theme-pearl .logo { background: linear-gradient(90deg, #b9935a, #e7cbb1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-pearl .profile { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .theme-pearl .stat-val { color: #805ad5; }
+        .theme-pearl .card { background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4)); border: 1px solid #fff; box-shadow: 0 8px 32px rgba(31,38,135,0.05); }
+        .theme-pearl .card:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(31,38,135,0.1); }
+        .theme-pearl .btn { background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: #4a5568; border: 1px solid #fff; }
+
+        /* ================= THEME 9: DEEP SPACE ================= */
+        body.theme-space { background: #0b0f19; color: #e2e8f0; }
+        .theme-space .app-mockup { background: #111827; border: 1px solid #1f2937; box-shadow: 0 20px 50px rgba(0,0,0,0.9); }
+        .theme-space .header { background: #1f2937; border-bottom: 1px solid #374151; }
+        .theme-space .logo { color: #60a5fa; letter-spacing: 1px; text-transform: uppercase; }
+        .theme-space .profile { background: #374151; color: #93c5fd; border-radius: 4px; }
+        .theme-space .stat-val { color: #f87171; }
+        .theme-space .card { background: #1f2937; border-left: 4px solid #60a5fa; border-radius: 4px; border-right: none; border-top: none; border-bottom: none;}
+        .theme-space .card:hover { background: #374151; border-left-color: #f87171; }
+        .theme-space .btn { background: #2563eb; color: #fff; border-radius: 4px; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; border: none; }
+        .theme-space .btn:hover { background: #3b82f6; box-shadow: 0 0 15px rgba(59,130,246,0.5); }
+    </style>
+</head>
+<body class="theme-cyberpunk">
+
+    <div class="theme-selector" id="btn-container">
+        <button class="theme-btn active-btn" onclick="setTheme('theme-cyberpunk', this)">1. Neon Cyberpunk</button>
+        <button class="theme-btn" onclick="setTheme('theme-luxury', this)">2. Luxury Crypto</button>
+        <button class="theme-btn" onclick="setTheme('theme-glass', this)">3. Cosmic Glass</button>
+        <button class="theme-btn" onclick="setTheme('theme-vibrant', this)">4. Vibrant Gamified</button>
+        <button class="theme-btn" onclick="setTheme('theme-arcade', this)">5. Retro Arcade</button>
+        <button class="theme-btn" onclick="setTheme('theme-sunset', this)">6. Sunset Gradient</button>
+        <button class="theme-btn" onclick="setTheme('theme-forest', this)">7. Dark Forest</button>
+        <button class="theme-btn" onclick="setTheme('theme-pearl', this)">8. Holographic Pearl</button>
+        <button class="theme-btn" onclick="setTheme('theme-space', this)">9. Deep Space</button>
+    </div>
+
+    <div class="app-mockup">
+        <div class="header">
+            <div class="header-top">
+                <div class="logo">⚡ TaskHub Pro</div>
+                <div class="profile">👤 Guest</div>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-val">$24.50</div>
+                    <div class="stat-lbl">Balance</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val">12</div>
+                    <div class="stat-lbl">Completions</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val">3</div>
+                    <div class="stat-lbl">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <div class="card-title">🎁 Daily Lucky Spin</div>
+                <p style="font-size: 13px; opacity: 0.8;">Spin the wheel for a chance to win 500 Coins!</p>
+                <button class="btn">Spin Free</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎮 Play Games & Earn</div>
+                <p style="font-size: 13px; opacity: 0.8;">Play Mystery Box, Coin Clicker, and Memory Match</p>
+                <button class="btn" style="background: transparent; border: 2px dashed; opacity: 0.8;">Show Games ▼</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setTheme(themeName, btnElement) {
+            document.body.className = themeName;
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.theme-btn');
+            buttons.forEach(btn => btn.classList.remove('active-btn'));
+            
+            // Add active class to clicked button
+            if (btnElement) {
+                btnElement.classList.add('active-btn');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -855,215 +855,44 @@ function startFeaturedTask() {
    SURVEYS TAB
    ========================================================================== */
 async function loadSurveys() {
-    const container = document.getElementById('surveys-list-container');
+    const container = document.getElementById('cpx-iframe-container');
     if (!container) return;
+    
+    // Only load the iframe once to prevent refreshing on tab switch
+    if (container.querySelector('iframe')) return;
 
-    let surveys = [];
-    if (useMockData) {
-        surveys = JSON.parse(localStorage.getItem('th_surveys'));
-        const completedIds = JSON.parse(localStorage.getItem('th_completed_surveys') || '[]');
-        surveys = surveys.map(s => ({ ...s, completed: completedIds.includes(s.id) }));
-    } else {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/surveys`, {
-                headers: { 'X-Telegram-Init-Data': getAuthHeader() }
-            });
-            if (!res.ok) {
-                throw new Error(`Surveys API responded with status ${res.status}`);
-            }
-            surveys = await res.json();
-        } catch (err) {
-            console.error(err);
-            useMockData = true;
-            return loadSurveys();
+    // CPX Research App ID
+    const appId = "34048";
+    const extUserId = userState.telegram_id || "guest";
+    
+    // Optional: Include username if available
+    let usernameParam = "";
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+        const username = window.Telegram.WebApp.initDataUnsafe.user.username;
+        if (username) {
+            usernameParam = `&username=${username}`;
         }
     }
-
-    container.innerHTML = '';
-    if (surveys.length === 0) {
-        container.innerHTML = '<div class="loading-placeholder">No surveys available right now.</div>';
-        return;
-    }
-
-    surveys.forEach(survey => {
-        const div = document.createElement('div');
-        div.className = 'task-card';
-        div.innerHTML = `
-            <div class="task-header">
-                <div class="task-info">
-                    <div class="task-title">${survey.title}</div>
-                    <div class="task-desc">${survey.description}</div>
-                    <div style="font-size: 8px; color: rgba(255,255,255,0.4); margin-top: 3px;">⏱️ Est. duration: ${survey.duration_minutes} mins</div>
-                </div>
-            </div>
-            ${survey.completed ? '<span class="completed-tag">✓ Submitted</span>' : `<span class="reward-tag">Earn ${Math.floor(survey.reward)} Coins</span>`}
-            ${survey.completed ? '' : `<button class="btn-primary" onclick='openSurveyPlayer(${JSON.stringify(survey)})'>Qualify & Start →</button>`}
-        `;
-        container.appendChild(div);
-    });
-}
-
-// Open Interactive Survey Player Modal
-function openSurveyPlayer(survey) {
-    activeSurvey = survey;
-    currentQuestionIndex = 0;
-    surveyAnswers = {};
     
-    document.getElementById('survey-player-title').innerText = survey.title;
-    document.getElementById('survey-player-modal').classList.add('active');
+    const iframeUrl = `https://offers.cpx-research.com/index.php?app_id=${appId}&ext_user_id=${extUserId}${usernameParam}`;
     
-    renderSurveyQuestion();
-}
-
-function closeSurveyPlayer() {
-    document.getElementById('survey-player-modal').classList.remove('active');
-    activeSurvey = null;
-}
-
-// Render dynamic question structure
-function renderSurveyQuestion() {
-    if (!activeSurvey || !activeSurvey.questions) return;
+    const loadingText = document.getElementById('cpx-loading-text');
+    if (loadingText) loadingText.innerText = "Loading CPX Research Surveys...";
     
-    const questions = activeSurvey.questions;
-    const question = questions[currentQuestionIndex];
-    const totalQuestions = questions.length;
+    const iframe = document.createElement('iframe');
+    iframe.width = "100%";
+    iframe.frameBorder = "0";
+    // Usually 800px is good for mobile TMA, CPX handles scrolling internally
+    iframe.height = "1200px"; 
+    iframe.src = iframeUrl;
+    iframe.style.borderRadius = "12px";
+    iframe.style.backgroundColor = "#fff"; // CPX background is typically white
     
-    // Progress
-    const progressPercent = Math.round(((currentQuestionIndex) / totalQuestions) * 100);
-    document.getElementById('survey-progress-fill').style.width = `${progressPercent}%`;
-    document.getElementById('survey-step-indicator').innerText = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+    iframe.onload = () => {
+        if (loadingText) loadingText.style.display = 'none';
+    };
     
-    const container = document.getElementById('survey-question-container');
-    container.innerHTML = `
-        <div class="survey-question-text">${question.text}</div>
-        <div class="survey-options-list">
-            ${question.options.map(opt => `
-                <button class="survey-option-btn ${surveyAnswers[question.id] === opt ? 'selected' : ''}" 
-                        onclick="selectSurveyOption('${question.id}', '${opt}')">${opt}</button>
-            `).join('')}
-        </div>
-    `;
-
-    // Back Button visibility
-    const backBtn = document.getElementById('survey-back-btn');
-    if (currentQuestionIndex > 0) {
-        backBtn.style.display = 'block';
-    } else {
-        backBtn.style.display = 'none';
-    }
-
-    // Next/Submit Button naming
-    const nextBtn = document.getElementById('survey-next-btn');
-    if (currentQuestionIndex === totalQuestions - 1) {
-        nextBtn.innerText = 'Submit Survey';
-    } else {
-        nextBtn.innerText = 'Next Question';
-    }
-}
-
-function selectSurveyOption(questionId, selectedOption) {
-    surveyAnswers[questionId] = selectedOption;
-    renderSurveyQuestion(); // re-render to apply active class
-}
-
-async function surveyNextQuestion() {
-    if (!activeSurvey) return;
-    
-    const questions = activeSurvey.questions;
-    const currentQuestion = questions[currentQuestionIndex];
-    
-    // Validate an option has been selected
-    if (!surveyAnswers[currentQuestion.id]) {
-        alert('Please select an option before moving forward.');
-        return;
-    }
-
-    if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex += 1;
-        renderSurveyQuestion();
-    } else {
-        // Last question submitted, process submission
-        await submitSurveyAnswers();
-    }
-}
-
-function surveyPreviousQuestion() {
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex -= 1;
-        renderSurveyQuestion();
-    }
-}
-
-async function submitSurveyAnswers() {
-    const nextBtn = document.getElementById('survey-next-btn');
-    nextBtn.disabled = true;
-    nextBtn.innerText = 'Submitting...';
-
-    if (useMockData) {
-        // Simulate survey credit
-        const completedIds = JSON.parse(localStorage.getItem('th_completed_surveys') || '[]');
-        if (!completedIds.includes(activeSurvey.id)) {
-            completedIds.push(activeSurvey.id);
-            localStorage.setItem('th_completed_surveys', JSON.stringify(completedIds));
-        }
-
-        userState.balance += parseFloat(activeSurvey.reward);
-        userState.completions += 1;
-        userState.level = Math.floor(userState.completions / 5) + 1;
-        
-        localStorage.setItem('th_completions_count', userState.completions.toString());
-        const mockUser = JSON.parse(localStorage.getItem('th_user'));
-        mockUser.balance = userState.balance;
-        localStorage.setItem('th_user', JSON.stringify(mockUser));
-
-        // Save transaction log
-        const mockTxs = JSON.parse(localStorage.getItem('th_transactions'));
-        mockTxs.unshift({
-            id: Math.random().toString(36).substr(2, 9),
-            amount: parseFloat(activeSurvey.reward),
-            type: 'survey',
-            description: `Completed survey: ${activeSurvey.title}`,
-            created_at: new Date().toISOString()
-        });
-        localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
-
-        alert(`🎉 Survey Submitted! Earned $${parseFloat(activeSurvey.reward).toFixed(2)}`);
-        
-        closeSurveyPlayer();
-        updateHeaderStats();
-        loadTabContent();
-    } else {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/surveys/submit`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Telegram-Init-Data': getAuthHeader()
-                },
-                body: JSON.stringify({
-                    surveyId: activeSurvey.id,
-                    answers: surveyAnswers
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                userState.balance = data.new_balance;
-                userState.completions += 1;
-                userState.level = Math.floor(userState.completions / 5) + 1;
-                alert(`🎉 Survey Submitted! Earned $${data.reward.toFixed(2)}`);
-            } else {
-                alert(`Error: ${data.error}`);
-            }
-            closeSurveyPlayer();
-            updateHeaderStats();
-            loadTabContent();
-        } catch (err) {
-            console.error(err);
-            alert('Network error, completing locally.');
-            useMockData = true;
-            await submitSurveyAnswers();
-        }
-    }
+    container.appendChild(iframe);
 }
 
 /* ==========================================================================

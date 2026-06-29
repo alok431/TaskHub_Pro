@@ -195,37 +195,14 @@
                 </div>
             </div>
 
-            <!-- SURVEYS TAB (NEW SECTION) -->
+            <!-- SURVEYS TAB -->
             <div id="surveys" class="content">
                 <div class="section-title">📊 CPX Research Surveys</div>
-                <div id="surveys-list-container">
-                    <!-- Surveys will be loaded dynamically -->
-                    <div class="loading-placeholder">Loading surveys...</div>
-                </div>
-
-                <!-- SURVEY MODAL/PLAYER -->
-                <div id="survey-player-modal" class="modal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 id="survey-player-title">Survey Title</h3>
-                            <button class="close-btn" onclick="closeSurveyPlayer()">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="survey-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="survey-progress-fill" style="width: 0%;"></div>
-                                </div>
-                                <span id="survey-step-indicator">Question 1 of 3</span>
-                            </div>
-                            <div id="survey-question-container">
-                                <!-- Dynamic Question Render -->
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn-outline" id="survey-back-btn" onclick="surveyPreviousQuestion()" style="display:none;">Back</button>
-                            <button class="btn-primary" id="survey-next-btn" onclick="surveyNextQuestion()">Next</button>
-                        </div>
-                    </div>
+                <div class="featured-desc" style="margin-bottom: 15px; text-align: center;">Complete surveys below to earn huge coin rewards instantly!</div>
+                
+                <div id="cpx-iframe-container" style="width: 100%; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.2);">
+                    <!-- CPX Iframe will be injected here via app.js -->
+                    <div class="loading-placeholder" id="cpx-loading-text">Loading Surveys...</div>
                 </div>
             </div>
 
