@@ -1683,3 +1683,11 @@ body {
 .light-theme .hub-game-info p {
     color: #475569 !important;
 }
+
+/* CREATE TASK BANNER */
+.create-task-banner { background: linear-gradient(135deg, rgba(0, 152, 234, 0.2) 0%, rgba(0, 114, 177, 0.1) 100%); border: 1.5px solid rgba(0, 152, 234, 0.4); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0, 152, 234, 0.15); }
+.create-task-banner:active { transform: scale(0.98); }
+.create-task-banner h3 { color: #0098EA; font-size: 14px; margin-bottom: 4px; }
+.create-task-banner p { color: rgba(255, 255, 255, 0.85); font-size: 11px; }
+.create-task-banner .banner-icon { background: rgba(0, 152, 234, 0.2); width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(0, 152, 234, 0.5); }
+.create-task-banner .plus-icon { color: #0098EA; font-size: 24px; font-weight: bold; line-height: 1; }

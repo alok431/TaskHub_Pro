@@ -1528,43 +1528,7 @@ function setupMockDatabase() {
         localStorage.removeItem('th_last_spin');
     }
 
-    if (!localStorage.getItem('th_tasks')) {
-        localStorage.setItem('th_tasks', JSON.stringify([
-            { id: 't1', title: '📺 Watch & Earn Videos', description: 'Watch 3 ads of 30 seconds each', reward: 150, task_type: 'quick', url: 'https://example.com/watch' },
-            { id: 't2', title: '🎮 Play Daily Mini Game', description: 'Score 1000+ points on the match-3 game', reward: 300, task_type: 'quick', url: 'https://example.com/game' },
-            { id: 't3', title: '📢 Join TaskHub Telegram Channel', description: 'Subscribe to our official updates channel', reward: 100, task_type: 'partner', url: 'https://t.me/taskhub_pro' },
-            { id: 't4', title: '🐦 Follow us on X/Twitter', description: 'Follow @TaskHubPro for active promo codes', reward: 200, task_type: 'partner', url: 'https://twitter.com/taskhub_pro' }
-        ]));
-    }
-
-    if (!localStorage.getItem('th_surveys')) {
-        localStorage.setItem('th_surveys', JSON.stringify([
-            {
-                id: 's1',
-                title: '📊 Consumer Behavior Study',
-                description: 'A quick survey to understand shopping preferences and online consumer choices.',
-                reward: 500,
-                duration_minutes: 10,
-                questions: [
-                    { id: "q1", text: "How often do you shop online?", type: "radio", options: ["Daily", "Weekly", "Monthly", "Rarely"] },
-                    { id: "q2", text: "Which payment method do you prefer most?", type: "radio", options: ["Credit Card", "PayPal", "Crypto", "Bank Transfer"] },
-                    { id: "q3", text: "What product category do you buy online most?", type: "radio", options: ["Electronics", "Fashion", "Groceries", "Books"] }
-                ]
-            },
-            {
-                id: 's2',
-                title: '📱 Brand Awareness Survey',
-                description: 'Help us identify popular tech brands and your personal device loyalty.',
-                reward: 1000,
-                duration_minutes: 8,
-                questions: [
-                    { id: "q1", text: "Which mobile operating system do you use?", type: "radio", options: ["Android", "iOS", "Other"] },
-                    { id: "q2", text: "Rate your satisfaction with your current brand (1-5)", type: "radio", options: ["1 - Poor", "2", "3 - Average", "4", "5 - Excellent"] },
-                    { id: "q3", text: "Do you own a smartwatch?", type: "radio", options: ["Yes", "No"] }
-                ]
-            }
-        ]));
-    }
+    // Removed hardcoded mock tasks and surveys here as per request.
 }
 
 /* ==========================================================================
@@ -1896,4 +1860,68 @@ async function awardGameReward(amount, gameName) {
             updateHeaderStats();
         }
     }
+}
+
+/* ==========================================================================
+   CREATE TASK FLOW
+   ========================================================================== */
+function openCreateTaskModal() { 
+    const m = document.getElementById("create-task-modal"); 
+    if(m) m.classList.add("active"); 
+}
+function closeCreateTaskModal() { 
+    const m = document.getElementById("create-task-modal"); 
+    if(m) m.classList.remove("active"); 
+}
+
+async function submitCreateTask() {
+  const title = document.getElementById("create-task-title").value.trim();
+  const desc = document.getElementById("create-task-desc").value.trim();
+  const reward = document.getElementById("create-task-reward").value;
+  const url = document.getElementById("create-task-url").value.trim();
+  
+  if(!title || !desc || !reward || !url) {
+    alert("Please fill all fields.");
+    return;
+  }
+  
+  const btn = document.getElementById("pay-ton-btn");
+  const originalText = btn.innerText;
+  btn.innerText = "Processing TON Transaction...";
+  btn.disabled = true;
+  
+  // Simulate TON Payment Delay
+  setTimeout(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Telegram-Init-Data": getAuthHeader()
+        },
+        body: JSON.stringify({ title, description: desc, reward: parseInt(reward), url, task_type: "partner" })
+      });
+      
+      if(response.ok) {
+        alert("Task created successfully! Paid with TON.");
+        closeCreateTaskModal();
+        document.getElementById("create-task-title").value = "";
+        document.getElementById("create-task-desc").value = "";
+        document.getElementById("create-task-reward").value = "";
+        document.getElementById("create-task-url").value = "";
+        if(activeTab === "tasks") {
+          loadTabContent("tasks");
+        }
+      } else {
+        const data = await response.json();
+        alert("Failed: " + (data.error || "Unknown Error"));
+      }
+    } catch(err) {
+      alert("Network error creating task.");
+      console.error(err);
+    } finally {
+      btn.innerText = originalText;
+      btn.disabled = false;
+    }
+  }, 2000);
 }

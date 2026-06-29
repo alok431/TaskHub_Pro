@@ -143,6 +143,17 @@
 
             <!-- TASKS TAB -->
             <div id="tasks" class="content">
+                <!-- Create Task Banner -->
+                <div class="create-task-banner" onclick="openCreateTaskModal()">
+                    <div class="banner-content">
+                        <h3>🚀 Create Your Own Task</h3>
+                        <p>Boost your channel or project instantly using TON!</p>
+                    </div>
+                    <div class="banner-icon">
+                        <div class="plus-icon">+</div>
+                    </div>
+                </div>
+
                 <div class="section-title">🎯 Available Partner Tasks</div>
                 <div id="partner-tasks-container">
                     <!-- Tasks will be loaded dynamically -->
@@ -314,6 +325,39 @@
                         <div class="modal-footer">
                             <button class="btn-outline" onclick="closeWithdrawModal()">Cancel</button>
                             <button class="btn-primary" onclick="submitWithdrawal()">Request Payout</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CREATE TASK MODAL -->
+                <div id="create-task-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Create Custom Task</h3>
+                            <button class="close-btn" onclick="closeCreateTaskModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Task Title</label>
+                                <input type="text" id="create-task-title" placeholder="e.g. Join my Telegram Channel" />
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" id="create-task-desc" placeholder="e.g. Subscribe to channel and stay active" />
+                            </div>
+                            <div class="form-group">
+                                <label>Reward per User (Coins)</label>
+                                <input type="number" id="create-task-reward" placeholder="e.g. 50" min="10" />
+                            </div>
+                            <div class="form-group">
+                                <label>Target URL</label>
+                                <input type="url" id="create-task-url" placeholder="https://t.me/..." />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-primary" style="background: linear-gradient(135deg, #0098EA, #0072B1); border-color: #0098EA;" id="pay-ton-btn" onclick="submitCreateTask()">
+                                💎 Pay with TON & Create
+                            </button>
                         </div>
                     </div>
                 </div>

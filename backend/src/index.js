@@ -477,6 +477,32 @@ export default {
         return corsResponse(result);
       }
 
+      // POST /api/tasks/create - Create a new custom task
+      if (path === '/api/tasks/create' && request.method === 'POST') {
+        const { title, description, reward, url, task_type } = await request.json();
+        if (!title || !description || !reward || !url) {
+          return corsResponse({ error: 'Missing required fields' }, 400);
+        }
+        
+        const { data: newTask, error: insertError } = await supabase
+          .from('tasks')
+          .insert({
+            title,
+            description,
+            reward: Number(reward),
+            url,
+            task_type: task_type || 'partner'
+          })
+          .select()
+          .single();
+          
+        if (insertError) {
+          return corsResponse({ error: insertError.message }, 500);
+        }
+        
+        return corsResponse({ success: true, task: newTask });
+      }
+
       // 5. POST /api/tasks/complete - Complete Task
       if (path === '/api/tasks/complete' && request.method === 'POST') {
         const { taskId } = await request.json();
