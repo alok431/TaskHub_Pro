@@ -1165,13 +1165,16 @@ function updateWithdrawalConversion() {
     if (!display) return;
     
     if (selectedPaymentMethod.includes('Stars')) {
-        const stars = Math.floor(amountVal / 17); // 17 coins = 1 star
+        // 1,000,000 coins = ~32 Stars
+        const stars = Math.floor(amountVal * 32 / 1000000); 
         display.innerText = `Equivalent: ${stars} Telegram Stars`;
     } else if (selectedPaymentMethod.includes('USDT')) {
-        const usdt = (amountVal / 1700).toFixed(2);
+        // 1,000,000 coins = ~$0.48 USDT
+        const usdt = (amountVal * 0.48 / 1000000).toFixed(2);
         display.innerText = `Equivalent: $${usdt} USDT (on TON)`;
     } else {
-        const ton = (amountVal / 1700).toFixed(2);
+        // 1,000,000 coins = 0.30 TON
+        const ton = (amountVal * 0.30 / 1000000).toFixed(4);
         display.innerText = `Equivalent: ${ton} TON`;
     }
 }
