@@ -1386,7 +1386,7 @@ async function submitWithdrawal() {
             payoutToken = "USDT";
         }
 
-        alert(`💸 Withdrawal Request Submitted!\nAmount: ${amountVal} Coins (Equivalent to ${payoutAmount} ${payoutToken})\nProcessing time: up to 24 hours.`);
+        alert(`💸 Withdrawal Request Submitted!nAmount: ${amountVal} Coins (Equivalent to ${payoutAmount} ${payoutToken})nProcessing time: up to 24 hours.`);
         closeWithdrawModal();
         updateHeaderStats();
         loadTabContent();
@@ -1613,17 +1613,17 @@ function startGameWithBet(gameType) {
 
 function processGameResult(wonMiniGame, container, tryAgainFnStr) {
     if (!wonMiniGame) {
-        container.innerHTML = \`
+        container.innerHTML = `
             <div style="text-align: center;">
                 <span style="font-size: 40px;">😢</span>
                 <h4 style="margin: 10px 0 4px; color: #ef4444; font-size: 14px;">Game Over</h4>
                 <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You failed the game and lost your bet.</p>
                 <div style="display: flex; gap: 8px; justify-content: center;">
                     <button class="btn-outline" onclick="closeGameModal()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Close</button>
-                    <button class="btn-primary" onclick="\${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Try Again</button>
+                    <button class="btn-primary" onclick="${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Try Again</button>
                 </div>
             </div>
-        \`;
+        `;
         return;
     }
     
@@ -1633,29 +1633,29 @@ function processGameResult(wonMiniGame, container, tryAgainFnStr) {
         userState.balance += reward;
         saveGameState();
         
-        container.innerHTML = \`
+        container.innerHTML = `
             <div style="text-align: center;">
                 <span style="font-size: 40px;">🎉</span>
                 <h4 style="margin: 10px 0 4px; color: #10b981; font-size: 14px;">You Won!</h4>
-                <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You beat the odds! +\${reward} Coins!</p>
+                <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You beat the odds! +${reward} Coins!</p>
                 <div style="display: flex; gap: 8px; justify-content: center;">
                     <button class="btn-outline" onclick="closeGameModal()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Close</button>
-                    <button class="btn-primary" onclick="\${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Play Again</button>
+                    <button class="btn-primary" onclick="${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Play Again</button>
                 </div>
             </div>
-        \`;
+        `;
     } else {
-        container.innerHTML = \`
+        container.innerHTML = `
             <div style="text-align: center;">
                 <span style="font-size: 40px;">💔</span>
                 <h4 style="margin: 10px 0 4px; color: #ef4444; font-size: 14px;">Bad Luck!</h4>
                 <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You played well, but didn't win the 30% chance this time.</p>
                 <div style="display: flex; gap: 8px; justify-content: center;">
                     <button class="btn-outline" onclick="closeGameModal()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Close</button>
-                    <button class="btn-primary" onclick="\${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Try Again</button>
+                    <button class="btn-primary" onclick="${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Try Again</button>
                 </div>
             </div>
-        \`;
+        `;
     }
 }
 
@@ -1667,7 +1667,7 @@ function saveGameState() {
 }
 
 function startMysteryBoxGame(container) {
-    container.innerHTML = \`
+    container.innerHTML = `
         <div style="text-align: center; width: 100%;">
             <p style="font-size: 11px; color: #64748b; margin-bottom: 15px;">Pick a Mystery Box!</p>
             <div style="display: flex; justify-content: space-around; margin: 20px 0;">
@@ -1676,7 +1676,7 @@ function startMysteryBoxGame(container) {
                 <div onclick="openMysteryBox(this, document.getElementById('game-modal-body'))" style="font-size: 45px; cursor: pointer; transition: 0.2s;">🎁</div>
             </div>
         </div>
-    \`;
+    `;
 }
 
 function openMysteryBox(el, container) {
