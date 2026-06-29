@@ -1433,11 +1433,11 @@ async function loadLeaderboard() {
     let leaders = [];
     if (useMockData) {
         leaders = [
-            { username: 'elite_earner', first_name: 'Elite', balance: 24500 },
-            { username: 'task_master92', first_name: 'Task Master', balance: 18950 },
-            { username: 'hustle_pro', first_name: 'Hustle Pro', balance: 15620 },
-            { username: 'crypto_champ', first_name: 'TON Champ', balance: 11080 },
-            { username: 'tg_earner', first_name: 'Alex', balance: 9430 }
+            { 
+                username: userState.username || 'user', 
+                first_name: userState.first_name || 'You', 
+                balance: userState.balance || 0 
+            }
         ];
     } else {
         try {
@@ -1493,50 +1493,39 @@ async function loadLeaderboard() {
    CLIENT SIDE SIMULATOR (LOCALSTORAGE DATABASE INITIALIZATION)
    ========================================================================== */
 function setupMockDatabase() {
-    if (!localStorage.getItem('th_user')) {
+    let tgUser = {
+        id: 123456789,
+        username: 'guest_user',
+        first_name: 'Guest',
+        last_name: ''
+    };
+    
+    if (WebApp && WebApp.initDataUnsafe && WebApp.initDataUnsafe.user) {
+        tgUser = WebApp.initDataUnsafe.user;
+    }
+
+    let storedUser = localStorage.getItem('th_user');
+    let parsedUser = storedUser ? JSON.parse(storedUser) : null;
+
+    if (!parsedUser || parsedUser.telegram_id !== tgUser.id) {
         localStorage.setItem('th_user', JSON.stringify({
-            telegram_id: 987654321,
-            username: 'telegram_earner',
-            first_name: 'Pro',
-            last_name: 'Earner',
-            balance: 5200.00,
-            streak: 7,
+            telegram_id: tgUser.id,
+            username: tgUser.username || '',
+            first_name: tgUser.first_name || 'User',
+            last_name: tgUser.last_name || '',
+            balance: 0.00,
+            streak: 1,
             last_login: new Date().toISOString()
         }));
-    }
-
-    if (!localStorage.getItem('th_last_streak_claim')) {
-        // Set last claim to 28 hours ago so they are ready to claim Day 1 today!
-        localStorage.setItem('th_last_streak_claim', new Date(Date.now() - 3600000 * 28).toISOString());
-    }
-
-    if (!localStorage.getItem('th_completions_count')) {
-        localStorage.setItem('th_completions_count', '7');
-    }
-
-    if (!localStorage.getItem('th_completed_tasks')) {
+        
+        // Reset all progress for a new real user
+        localStorage.setItem('th_last_streak_claim', '');
+        localStorage.setItem('th_completions_count', '0');
         localStorage.setItem('th_completed_tasks', JSON.stringify([]));
-    }
-
-    if (!localStorage.getItem('th_completed_surveys')) {
         localStorage.setItem('th_completed_surveys', JSON.stringify([]));
-    }
-
-    if (!localStorage.getItem('th_transactions')) {
-        localStorage.setItem('th_transactions', JSON.stringify([
-            { id: 'tx1', amount: 5100.00, type: 'referral', description: 'Referral Bonus: Invited @crypto_earner', created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
-            { id: 'tx2', amount: 150.00, type: 'task', description: 'Completed Watch Ads Task', created_at: new Date(Date.now() - 3600000 * 5).toISOString() },
-            { id: 'tx3', amount: 300.00, type: 'task', description: 'Completed Daily Mini Game', created_at: new Date(Date.now() - 3600000 * 24).toISOString() },
-            { id: 'tx4', amount: 500.00, type: 'streak', description: 'Daily login streak bonus (Day 7)', created_at: new Date(Date.now() - 3600000 * 28).toISOString() }
-        ]));
-    }
-
-    if (!localStorage.getItem('th_referrals')) {
-        localStorage.setItem('th_referrals', JSON.stringify([
-            { username: 'crypto_earner', created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
-            { username: 'ton_master', created_at: new Date(Date.now() - 86400000 * 5).toISOString() },
-            { username: 'refer_king', created_at: new Date(Date.now() - 86400000 * 7).toISOString() }
-        ]));
+        localStorage.setItem('th_transactions', JSON.stringify([]));
+        localStorage.setItem('th_referrals', JSON.stringify([]));
+        localStorage.removeItem('th_last_spin');
     }
 
     if (!localStorage.getItem('th_tasks')) {
