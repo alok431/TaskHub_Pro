@@ -494,6 +494,18 @@ function switchTaskTab(viewName) {
     }
 }
 
+function openAyetOfferwall() {
+    const placementId = "23460";
+    const uid = userState.telegram_id || "guest";
+    const url = `https://www.ayetstudios.com/offers/web_offerwall/${placementId}?external_identifier=${uid}`;
+    
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+        window.Telegram.WebApp.openLink(url);
+    } else {
+        window.open(url, '_blank');
+    }
+}
+
 /* ==========================================================================
    DAILY LUCKY SPIN
    ========================================================================== */
