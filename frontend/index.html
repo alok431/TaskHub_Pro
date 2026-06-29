@@ -177,21 +177,66 @@
 
             <!-- TASKS TAB -->
             <div id="tasks" class="content">
-                <!-- Create Task Banner -->
-                <div class="create-task-banner" onclick="openCreateTaskModal()">
-                    <div class="banner-content">
-                        <h3>🚀 Create Your Own Task</h3>
-                        <p>Boost your channel or project instantly using TON!</p>
+                
+                <!-- Segmented Control -->
+                <div class="task-segment-control">
+                    <button class="segment-btn active" id="btn-custom-tasks" onclick="switchTaskTab('custom')">🎯 Custom Tasks</button>
+                    <button class="segment-btn" id="btn-offerwalls" onclick="switchTaskTab('offerwalls')">🏢 Offerwalls</button>
+                </div>
+
+                <!-- Custom Tasks Container -->
+                <div id="custom-tasks-view">
+                    <!-- Create Task Banner -->
+                    <div class="create-task-banner" onclick="openCreateTaskModal()">
+                        <div class="banner-content">
+                            <h3>🚀 Create Your Own Task</h3>
+                            <p>Boost your channel or project instantly using TON!</p>
+                        </div>
+                        <div class="banner-icon">
+                            <div class="plus-icon">+</div>
+                        </div>
                     </div>
-                    <div class="banner-icon">
-                        <div class="plus-icon">+</div>
+
+                    <div class="section-title">🎯 Available Tasks</div>
+                    <div id="custom-tasks-container">
+                        <!-- Tasks will be loaded dynamically -->
+                        <div class="loading-placeholder">Loading custom tasks...</div>
                     </div>
                 </div>
 
-                <div class="section-title">🎯 Available Partner Tasks</div>
-                <div id="partner-tasks-container">
-                    <!-- Tasks will be loaded dynamically -->
-                    <div class="loading-placeholder">Loading partner tasks...</div>
+                <!-- Offerwalls Container (Hidden by default) -->
+                <div id="offerwalls-view" style="display: none;">
+                    <div class="section-title" style="margin-top: 0;">🏢 Premium Offerwalls</div>
+                    <div class="featured-desc" style="margin-bottom: 16px;">Complete high-paying offers from our trusted partners!</div>
+                    
+                    <div class="offerwall-grid">
+                        <div class="offerwall-card" onclick="alert('Torox Offerwall coming soon! Check back later when integration is live.')">
+                            <div class="offerwall-icon">🎮</div>
+                            <div class="offerwall-info">
+                                <h4>Torox</h4>
+                                <p>Earn up to 50k Coins</p>
+                            </div>
+                            <div class="offerwall-arrow">→</div>
+                        </div>
+                        
+                        <div class="offerwall-card" onclick="alert('AyetStudios Offerwall coming soon! Check back later when integration is live.')">
+                            <div class="offerwall-icon">📱</div>
+                            <div class="offerwall-info">
+                                <h4>AyetStudios</h4>
+                                <p>Earn up to 30k Coins</p>
+                            </div>
+                            <div class="offerwall-arrow">→</div>
+                        </div>
+                        
+                        <div class="offerwall-card" onclick="alert('Lootably Offerwall coming soon! Check back later when integration is live.')">
+                            <div class="offerwall-icon">💎</div>
+                            <div class="offerwall-info">
+                                <h4>Lootably</h4>
+                                <p>Earn up to 25k Coins</p>
+                            </div>
+                            <div class="offerwall-arrow">→</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

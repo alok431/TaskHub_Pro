@@ -471,6 +471,30 @@ function updateSpinUI() {
 }
 
 /* ==========================================================================
+   TASKS TAB SWITCHING
+   ========================================================================== */
+function switchTaskTab(viewName) {
+    const customView = document.getElementById('custom-tasks-view');
+    const offerwallsView = document.getElementById('offerwalls-view');
+    const btnCustom = document.getElementById('btn-custom-tasks');
+    const btnOfferwalls = document.getElementById('btn-offerwalls');
+
+    if (!customView || !offerwallsView) return;
+
+    if (viewName === 'custom') {
+        customView.style.display = 'block';
+        offerwallsView.style.display = 'none';
+        btnCustom.classList.add('active');
+        btnOfferwalls.classList.remove('active');
+    } else {
+        customView.style.display = 'none';
+        offerwallsView.style.display = 'block';
+        btnCustom.classList.remove('active');
+        btnOfferwalls.classList.add('active');
+    }
+}
+
+/* ==========================================================================
    DAILY LUCKY SPIN
    ========================================================================== */
 async function triggerSpin() {
@@ -696,7 +720,7 @@ async function loadQuickTasks() {
 }
 
 async function loadPartnerTasks() {
-    const container = document.getElementById('partner-tasks-container');
+    const container = document.getElementById('custom-tasks-container');
     if (!container) return;
 
     let tasks = [];
@@ -722,7 +746,7 @@ async function loadPartnerTasks() {
 
     container.innerHTML = '';
     if (tasks.length === 0) {
-        container.innerHTML = '<div class="loading-placeholder">No partner tasks available. Check back soon.</div>';
+        container.innerHTML = '<div class="loading-placeholder">No custom tasks available. Create one!</div>';
         return;
     }
 

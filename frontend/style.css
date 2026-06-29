@@ -1692,6 +1692,28 @@ body {
 .create-task-banner .banner-icon { background: rgba(0, 152, 234, 0.2); width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(0, 152, 234, 0.5); }
 .create-task-banner .plus-icon { color: #0098EA; font-size: 24px; font-weight: bold; line-height: 1; }
 
+/* TASKS SEGMENTED CONTROL */
+.task-segment-control { display: flex; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+.segment-btn { flex: 1; padding: 10px 0; border: none; background: transparent; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.segment-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0, 152, 234, 0.3); }
+
+/* OFFERWALL CARDS */
+.offerwall-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
+.offerwall-card { background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.offerwall-card:active { transform: scale(0.98); }
+.offerwall-icon { font-size: 28px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; margin-right: 15px; }
+.offerwall-info { flex: 1; }
+.offerwall-info h4 { font-size: 15px; color: #fff; margin-bottom: 4px; }
+.offerwall-info p { font-size: 12px; color: var(--primary); font-weight: 600; }
+.offerwall-arrow { font-size: 18px; color: rgba(255,255,255,0.4); }
+
+.light-theme .task-segment-control { background: rgba(0,0,0,0.05); }
+.light-theme .segment-btn { color: #64748b; }
+.light-theme .segment-btn.active { color: white; }
+.light-theme .offerwall-card { background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+.light-theme .offerwall-info h4 { color: #0f172a; }
+.light-theme .offerwall-icon { background: rgba(0, 152, 234, 0.1); }
+
 /* LANGUAGE CARD */
 .lang-card {
     background: rgba(255,255,255,0.05);
