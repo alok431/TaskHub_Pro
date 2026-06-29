@@ -1691,3 +1691,20 @@ body {
 .create-task-banner p { color: rgba(255, 255, 255, 0.85); font-size: 11px; }
 .create-task-banner .banner-icon { background: rgba(0, 152, 234, 0.2); width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(0, 152, 234, 0.5); }
 .create-task-banner .plus-icon { color: #0098EA; font-size: 24px; font-weight: bold; line-height: 1; }
+
+/* LANGUAGE CARD */
+.lang-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+    color: #fff;
+}
+.lang-card:hover, .lang-card.active {
+    background: rgba(0, 152, 234, 0.2);
+    border-color: #0098EA;
+}
