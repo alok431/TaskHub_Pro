@@ -16,6 +16,11 @@ if (WebApp) {
     WebApp.ready();
     WebApp.expand();
     
+    // Disable vertical swipes to prevent dragging the entire WebApp/webview container
+    if (WebApp.disableVerticalSwipes) {
+        WebApp.disableVerticalSwipes();
+    }
+    
     // Listen to Telegram viewport changes
     WebApp.onEvent('viewportChanged', updateViewportHeight);
 }
