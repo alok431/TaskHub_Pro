@@ -1803,9 +1803,9 @@ function updateCreateTaskPrice() {
   
   if (reward > 0 && maxUsers > 0) {
       // Base Cost: (Reward per User * Max Users) / 1,000,000 * 0.30
-      // 2x Multiplier for profit
+      // 1.5x Multiplier for profit
       const totalCoins = reward * maxUsers;
-      let costInTon = (totalCoins / 1000000) * 0.30 * 2;
+      let costInTon = (totalCoins / 1000000) * 0.30 * 1.5;
       btn.innerText = `💎 Pay ${costInTon.toFixed(4)} TON & Create`;
   } else {
       btn.innerText = `💎 Pay with TON & Create`;
