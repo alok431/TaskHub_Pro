@@ -98,10 +98,22 @@ let currentQuestionIndex = 0;
 let surveyAnswers = {};
 
 // Initialization
+let tonConnectUI = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
     updateViewportHeight();
     initTheme();
     console.log("TaskHub Pro Initializing...");
+    
+    // Init TonConnect UI
+    try {
+        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://raw.githubusercontent.com/alok431/TaskHub_Pro/main/frontend/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect'
+        });
+    } catch(e) {
+        console.error("TonConnect init failed", e);
+    }
     
     // Check API availability
     try {
@@ -184,20 +196,25 @@ async function loadUserProfile() {
             level: Math.floor(mockCompletions / 5) + 1
         };
 
-        // Cooldown check for spin
-        const lastSpinStr = localStorage.getItem('th_last_spin');
-        if (lastSpinStr) {
-            const hours = (new Date() - new Date(lastSpinStr)) / (1000 * 60 * 60);
-            if (hours < 24) {
-                userState.canSpin = false;
-                userState.spinCooldown = Math.ceil(24 - hours);
-            } else {
-                userState.canSpin = true;
-                userState.spinCooldown = 0;
-            }
+        // Cooldown check for spin (5 max spins)
+        let spinHistoryStr = localStorage.getItem('th_spin_history');
+        let spinHistory = spinHistoryStr ? JSON.parse(spinHistoryStr) : [];
+        
+        // Filter out spins older than 24 hours
+        const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+        spinHistory = spinHistory.filter(time => time > twentyFourHoursAgo);
+        localStorage.setItem('th_spin_history', JSON.stringify(spinHistory));
+
+        if (spinHistory.length >= 5) {
+            userState.canSpin = false;
+            const oldestSpin = spinHistory[0];
+            const hoursSinceOldest = (Date.now() - oldestSpin) / (1000 * 60 * 60);
+            userState.spinCooldown = Math.ceil(24 - hoursSinceOldest);
+            userState.spins_left = 0;
         } else {
             userState.canSpin = true;
             userState.spinCooldown = 0;
+            userState.spins_left = 5 - spinHistory.length;
         }
 
         // Cooldown check for streak
@@ -246,6 +263,7 @@ async function loadUserProfile() {
                 userState.streak = data.user.streak;
                 userState.canSpin = data.spin.canSpin;
                 userState.spinCooldown = data.spin.spinCooldown;
+                userState.spins_left = data.spin.spins_left;
                 userState.lastStreakClaim = data.streak.last_streak_claim;
                 userState.claimedStreakToday = data.streak.claimed_today;
                 
@@ -458,7 +476,7 @@ function updateSpinUI() {
     if (!spinBtn) return;
     
     if (userState.canSpin) {
-        spinBtn.innerText = 'Spin Free →';
+        spinBtn.innerText = `Spin Free (${userState.spins_left}/5) →`;
         spinBtn.disabled = false;
         spinBtn.classList.remove('btn-outline');
         spinBtn.classList.add('btn-secondary');
@@ -539,7 +557,11 @@ async function triggerSpin() {
             userState.spinCooldown = 24;
             
             // Save mock data
-            localStorage.setItem('th_last_spin', new Date().toISOString());
+            let spinHistoryStr = localStorage.getItem('th_spin_history');
+            let spinHistory = spinHistoryStr ? JSON.parse(spinHistoryStr) : [];
+            spinHistory.push(Date.now());
+            localStorage.setItem('th_spin_history', JSON.stringify(spinHistory));
+            userState.spins_left = Math.max(0, 5 - spinHistory.length);
             const mockUser = JSON.parse(localStorage.getItem('th_user'));
             mockUser.balance = userState.balance;
             localStorage.setItem('th_user', JSON.stringify(mockUser));
@@ -572,8 +594,9 @@ async function triggerSpin() {
                 wheel.classList.remove('spinning-animation');
                 if (data.success) {
                     userState.balance = data.new_balance;
-                    userState.canSpin = false;
+                    userState.canSpin = data.spins_left > 0;
                     userState.spinCooldown = data.cooldown;
+                    userState.spins_left = data.spins_left;
                     
                     const icons = { 20: '🎟️', 50: '💰', 100: '💵', 250: '💎', 500: '👑', 1700: '🎰' };
                     wheel.innerText = icons[data.reward] || '💎';
@@ -1834,25 +1857,59 @@ async function submitCreateTask() {
     return;
   }
   
+  if (!tonConnectUI || !tonConnectUI.connected) {
+    alert("Please connect your TON wallet using the button in the top right corner first!");
+    if(tonConnectUI) tonConnectUI.connectWallet();
+    return;
+  }
+  
   const btn = document.getElementById("pay-ton-btn");
   const originalText = btn.innerText;
-  btn.innerText = "Processing TON Transaction...";
+  btn.innerText = "Please confirm in your Wallet...";
   btn.disabled = true;
   
-  // Simulate TON Payment Delay
-  setTimeout(async () => {
-    try {
+  try {
+    // 1 TON = 10^9 nanoTON
+    const totalCoins = reward * maxUsers;
+    const costInTon = (totalCoins / 1000000) * 0.30 * 1.5;
+    const nanoTonCost = Math.floor(costInTon * 10**9).toString();
+    
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutes to confirm
+        messages: [
+            {
+                // REPLACE THIS WITH YOUR REAL WALLET ADDRESS
+                address: "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ",
+                amount: nanoTonCost
+            }
+        ]
+    };
+    
+    // Request wallet to sign and send the transaction
+    const txResult = await tonConnectUI.sendTransaction(transaction);
+    
+    if (txResult && txResult.boc) {
+      btn.innerText = "Saving Task...";
+      
       const response = await fetch(`${API_BASE_URL}/api/tasks/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Telegram-Init-Data": getAuthHeader()
         },
-        body: JSON.stringify({ title, description: desc, reward: parseInt(reward), max_users: parseInt(maxUsers), url, task_type: "partner" })
+        body: JSON.stringify({ 
+          title, 
+          description: desc, 
+          reward: parseInt(reward), 
+          max_users: parseInt(maxUsers), 
+          url, 
+          task_type: "partner",
+          transaction_hash: txResult.boc // Pass BOC to backend if they want to verify it
+        })
       });
       
       if(response.ok) {
-        alert("Task created successfully! Paid with TON.");
+        alert("Task created successfully! Paid with real TON.");
         closeCreateTaskModal();
         document.getElementById("create-task-title").value = "";
         document.getElementById("create-task-desc").value = "";
@@ -1865,16 +1922,20 @@ async function submitCreateTask() {
         }
       } else {
         const data = await response.json();
-        alert("Failed: " + (data.error || "Unknown Error"));
+        alert("Failed to save task: " + (data.error || "Unknown Error"));
       }
-    } catch(err) {
-      alert("Network error creating task.");
-      console.error(err);
-    } finally {
-      btn.innerText = originalText;
-      btn.disabled = false;
     }
-  }, 2000);
+  } catch(err) {
+    if (err.message && err.message.includes("UserRejectsError")) {
+        alert("You cancelled the transaction.");
+    } else {
+        alert("Transaction failed. Please try again.");
+    }
+    console.error("TON transaction error:", err);
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }
 }
 
 /* ==========================================================================

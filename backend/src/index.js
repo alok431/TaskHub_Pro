@@ -212,23 +212,26 @@ export default {
             .eq('telegram_id', tgUser.telegram_id);
         }
 
-        // Check daily spin status (check if user has spun in the last 24 hours)
-        const { data: lastSpin } = await supabase
+        // Check daily spin status (allow 5 spins per 24 hours)
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: recentSpins } = await supabase
           .from('transactions')
           .select('created_at')
           .eq('user_id', tgUser.telegram_id)
           .eq('type', 'spin')
-          .order('created_at', { ascending: false })
-          .limit(1);
+          .gte('created_at', twentyFourHoursAgo)
+          .order('created_at', { ascending: false });
 
         let canSpin = true;
         let spinCooldown = 0;
-        if (lastSpin && lastSpin.length > 0) {
-          const hoursSinceLastSpin = (new Date() - new Date(lastSpin[0].created_at)) / (1000 * 60 * 60);
-          if (hoursSinceLastSpin < 24) {
-            canSpin = false;
-            spinCooldown = Math.ceil(24 - hoursSinceLastSpin);
-          }
+        let spinsCount = recentSpins ? recentSpins.length : 0;
+        
+        if (spinsCount >= 5) {
+          canSpin = false;
+          // Cooldown based on the oldest spin in the 24 hour window
+          const oldestSpin = recentSpins[4];
+          const hoursSinceOldest = (new Date() - new Date(oldestSpin.created_at)) / (1000 * 60 * 60);
+          spinCooldown = Math.ceil(24 - hoursSinceOldest);
         }
 
         // Check daily streak status
@@ -272,7 +275,7 @@ export default {
 
         return corsResponse({
           user,
-          spin: { canSpin, spinCooldown },
+          spin: { canSpin, spinCooldown, spins_left: Math.max(0, 5 - spinsCount) },
           streak: {
             last_streak_claim: lastStreakClaimTime,
             claimed_today: claimedToday
@@ -282,20 +285,21 @@ export default {
 
       // 2. POST /api/user/spin - Execute Daily Spin
       if (path === '/api/user/spin' && request.method === 'POST') {
-        // Double check cooldown
-        const { data: lastSpin } = await supabase
+        // Double check cooldown (allow 5 spins per 24 hours)
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: recentSpins } = await supabase
           .from('transactions')
           .select('created_at')
           .eq('user_id', tgUser.telegram_id)
           .eq('type', 'spin')
-          .order('created_at', { ascending: false })
-          .limit(1);
+          .gte('created_at', twentyFourHoursAgo)
+          .order('created_at', { ascending: false });
 
-        if (lastSpin && lastSpin.length > 0) {
-          const hoursSinceLastSpin = (new Date() - new Date(lastSpin[0].created_at)) / (1000 * 60 * 60);
-          if (hoursSinceLastSpin < 24) {
-            return corsResponse({ error: 'Daily spin on cooldown', cooldown: Math.ceil(24 - hoursSinceLastSpin) }, 400);
-          }
+        let spinsCount = recentSpins ? recentSpins.length : 0;
+        if (spinsCount >= 5) {
+          const oldestSpin = recentSpins[4];
+          const hoursSinceOldest = (new Date() - new Date(oldestSpin.created_at)) / (1000 * 60 * 60);
+          return corsResponse({ error: 'Daily spin on cooldown', cooldown: Math.ceil(24 - hoursSinceOldest) }, 400);
         }
 
         // Spin rewards configuration (Coins)
@@ -340,7 +344,8 @@ export default {
           success: true,
           reward: spinReward,
           new_balance: newBalance,
-          cooldown: 24
+          cooldown: spinsCount + 1 >= 5 ? 24 : 0,
+          spins_left: Math.max(0, 5 - (spinsCount + 1))
         });
       }
 
@@ -479,7 +484,8 @@ export default {
 
       // POST /api/tasks/create - Create a new custom task
       if (path === '/api/tasks/create' && request.method === 'POST') {
-        const { title, description, reward, url, max_users, task_type } = await request.json();
+        const { title, description, reward, url, max_users, task_type, transaction_hash } = await request.json();
+        // TODO: In production, verify transaction_hash using TonCenter API before proceeding
         if (!title || !description || !reward || !url || !max_users) {
           return corsResponse({ error: 'Missing required fields' }, 400);
         }
