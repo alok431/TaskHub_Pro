@@ -23,8 +23,6 @@
                     <button class="theme-toggle-btn" id="lang-toggle" onclick="openLangModal()" title="Change Language">🌐</button>
                     <!-- Theme Toggle Badge -->
                     <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
-                    <!-- TonConnect Button -->
-                    <div id="ton-connect"></div>
                     <!-- Profile Badge -->
                     <div class="profile-badge" id="profile-badge" onclick="toggleProfileDropdown(event)">
                         <div class="profile-avatar">👤</div>
@@ -317,6 +315,10 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <button class="btn-primary" onclick="openWithdrawModal()">Withdraw</button>
                         <button class="btn-outline" onclick="alert('Deposits will be integrated with TON Gateway.')">Add Balance</button>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; justify-content: center;">
+                        <!-- TonConnect Button -->
+                        <div id="ton-connect"></div>
                     </div>
                 </div>
 
