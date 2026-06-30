@@ -483,6 +483,12 @@ export default {
         if (!title || !description || !reward || !url || !max_users) {
           return corsResponse({ error: 'Missing required fields' }, 400);
         }
+        if (Number(reward) > 5000) {
+          return corsResponse({ error: 'Reward cannot exceed 5000' }, 400);
+        }
+        if (Number(max_users) > 1000) {
+          return corsResponse({ error: 'Max users cannot exceed 1000' }, 400);
+        }
         
         const { data: newTask, error: insertError } = await supabase
           .from('tasks')

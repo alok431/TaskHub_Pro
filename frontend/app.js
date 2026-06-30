@@ -1824,6 +1824,16 @@ async function submitCreateTask() {
     return;
   }
   
+  if (parseInt(reward) > 5000) {
+    alert("Reward per user cannot exceed 5000 coins.");
+    return;
+  }
+  
+  if (parseInt(maxUsers) > 1000) {
+    alert("Max users cannot exceed 1000.");
+    return;
+  }
+  
   const btn = document.getElementById("pay-ton-btn");
   const originalText = btn.innerText;
   btn.innerText = "Processing TON Transaction...";
