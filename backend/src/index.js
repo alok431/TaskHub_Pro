@@ -479,8 +479,8 @@ export default {
 
       // POST /api/tasks/create - Create a new custom task
       if (path === '/api/tasks/create' && request.method === 'POST') {
-        const { title, description, reward, url, task_type } = await request.json();
-        if (!title || !description || !reward || !url) {
+        const { title, description, reward, url, max_users, task_type } = await request.json();
+        if (!title || !description || !reward || !url || !max_users) {
           return corsResponse({ error: 'Missing required fields' }, 400);
         }
         
@@ -490,6 +490,7 @@ export default {
             title,
             description,
             reward: Number(reward),
+            max_users: Number(max_users),
             url,
             task_type: task_type || 'partner'
           })

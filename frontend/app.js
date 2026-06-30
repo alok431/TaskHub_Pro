@@ -1796,13 +1796,30 @@ function closeCreateTaskModal() {
     if(m) m.classList.remove("active"); 
 }
 
+function updateCreateTaskPrice() {
+  const reward = parseInt(document.getElementById("create-task-reward").value) || 0;
+  const maxUsers = parseInt(document.getElementById("create-task-max-users").value) || 0;
+  const btn = document.getElementById("pay-ton-btn");
+  
+  if (reward > 0 && maxUsers > 0) {
+      // Base Cost: (Reward per User * Max Users) / 1,000,000 * 0.30
+      // 2x Multiplier for profit
+      const totalCoins = reward * maxUsers;
+      let costInTon = (totalCoins / 1000000) * 0.30 * 2;
+      btn.innerText = `💎 Pay ${costInTon.toFixed(4)} TON & Create`;
+  } else {
+      btn.innerText = `💎 Pay with TON & Create`;
+  }
+}
+
 async function submitCreateTask() {
   const title = document.getElementById("create-task-title").value.trim();
   const desc = document.getElementById("create-task-desc").value.trim();
   const reward = document.getElementById("create-task-reward").value;
+  const maxUsers = document.getElementById("create-task-max-users").value;
   const url = document.getElementById("create-task-url").value.trim();
   
-  if(!title || !desc || !reward || !url) {
+  if(!title || !desc || !reward || !maxUsers || !url) {
     alert("Please fill all fields.");
     return;
   }
@@ -1821,7 +1838,7 @@ async function submitCreateTask() {
           "Content-Type": "application/json",
           "X-Telegram-Init-Data": getAuthHeader()
         },
-        body: JSON.stringify({ title, description: desc, reward: parseInt(reward), url, task_type: "partner" })
+        body: JSON.stringify({ title, description: desc, reward: parseInt(reward), max_users: parseInt(maxUsers), url, task_type: "partner" })
       });
       
       if(response.ok) {
@@ -1830,7 +1847,9 @@ async function submitCreateTask() {
         document.getElementById("create-task-title").value = "";
         document.getElementById("create-task-desc").value = "";
         document.getElementById("create-task-reward").value = "";
+        document.getElementById("create-task-max-users").value = "";
         document.getElementById("create-task-url").value = "";
+        document.getElementById("pay-ton-btn").innerText = "💎 Pay with TON & Create";
         if(activeTab === "tasks") {
           loadTabContent("tasks");
         }

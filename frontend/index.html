@@ -407,7 +407,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Reward per User (Coins)</label>
-                                <input type="number" id="create-task-reward" placeholder="e.g. 50" min="10" />
+                                <input type="number" id="create-task-reward" placeholder="e.g. 50" min="10" oninput="updateCreateTaskPrice()" />
+                            </div>
+                            <div class="form-group">
+                                <label>Max Users (Completions)</label>
+                                <input type="number" id="create-task-max-users" placeholder="e.g. 1000" min="1" oninput="updateCreateTaskPrice()" />
                             </div>
                             <div class="form-group">
                                 <label>Target URL</label>
