@@ -731,6 +731,14 @@ async function loadQuickTasks() {
     // Filter out "Play Daily Mini Game" task since it is moved to its own beautiful section
     tasks = tasks.filter(t => t.id !== 't2' && !t.title.includes('Play Daily Mini Game'));
 
+    // Deduplicate tasks by title to remove duplicates
+    const seenTitles = new Set();
+    tasks = tasks.filter(t => {
+        if (seenTitles.has(t.title)) return false;
+        seenTitles.add(t.title);
+        return true;
+    });
+
     container.innerHTML = '';
     if (tasks.length === 0) {
         container.innerHTML = '<div class="loading-placeholder">No quick tasks available right now.</div>';
@@ -778,6 +786,14 @@ async function loadPartnerTasks() {
             return loadPartnerTasks();
         }
     }
+
+    // Deduplicate tasks by title to remove duplicates
+    const seenTitles = new Set();
+    tasks = tasks.filter(t => {
+        if (seenTitles.has(t.title)) return false;
+        seenTitles.add(t.title);
+        return true;
+    });
 
     container.innerHTML = '';
     if (tasks.length === 0) {
