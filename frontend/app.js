@@ -92,11 +92,6 @@ let useMockData = false; // Flag if backend is unavailable
 let selectedPaymentMethod = 'PayPal';
 let minWithdrawalAmount = 5.00;
 
-// Survey Player State
-let activeSurvey = null;
-let currentQuestionIndex = 0;
-let surveyAnswers = {};
-
 // Initialization
 let tonConnectUI = null;
 
@@ -171,12 +166,8 @@ async function loadTabContent() {
         updateSpinUI();
     } else if (activeTab === 'tasks') {
         await loadPartnerTasks();
-    } else if (activeTab === 'surveys') {
-        await loadSurveys();
     } else if (activeTab === 'refer') {
         await loadReferralData();
-    } else if (activeTab === 'achievements') {
-        await loadAchievements();
     } else if (activeTab === 'wallet') {
         await loadTransactions();
         selectPaymentMethod('PayPal', '$5');
@@ -277,16 +268,7 @@ async function loadUserProfile() {
                 const tasks = await tasksRes.json();
                 const taskCompletedCount = tasks.filter(t => t.completed).length;
 
-                const surveyRes = await fetch(`${API_BASE_URL}/api/surveys`, {
-                    headers: { 'X-Telegram-Init-Data': getAuthHeader() }
-                });
-                if (!surveyRes.ok) {
-                    throw new Error(`Surveys API responded with status ${surveyRes.status}`);
-                }
-                const surveys = await surveyRes.json();
-                const surveyCompletedCount = surveys.filter(s => s.completed).length;
-
-                userState.completions = taskCompletedCount + surveyCompletedCount;
+                userState.completions = taskCompletedCount;
                 userState.level = Math.floor(userState.completions / 5) + 1;
             }
         } catch (err) {
@@ -927,50 +909,6 @@ function startFeaturedTask() {
 }
 
 /* ==========================================================================
-   SURVEYS TAB
-   ========================================================================== */
-async function loadSurveys() {
-    const container = document.getElementById('cpx-iframe-container');
-    if (!container) return;
-    
-    // Only load the iframe once to prevent refreshing on tab switch
-    if (container.querySelector('iframe')) return;
-
-    // CPX Research App ID
-    const appId = "34048";
-    const extUserId = userState.telegram_id || "guest";
-    
-    // Optional: Include username if available
-    let usernameParam = "";
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-        const username = window.Telegram.WebApp.initDataUnsafe.user.username;
-        if (username) {
-            usernameParam = `&username=${username}`;
-        }
-    }
-    
-    const iframeUrl = `https://offers.cpx-research.com/index.php?app_id=${appId}&ext_user_id=${extUserId}${usernameParam}`;
-    
-    const loadingText = document.getElementById('cpx-loading-text');
-    if (loadingText) loadingText.innerText = "Loading CPX Research Surveys...";
-    
-    const iframe = document.createElement('iframe');
-    iframe.width = "100%";
-    iframe.frameBorder = "0";
-    // Usually 800px is good for mobile TMA, CPX handles scrolling internally
-    iframe.height = "1200px"; 
-    iframe.src = iframeUrl;
-    iframe.style.borderRadius = "12px";
-    iframe.style.backgroundColor = "#fff"; // CPX background is typically white
-    
-    iframe.onload = () => {
-        if (loadingText) loadingText.style.display = 'none';
-    };
-    
-    container.appendChild(iframe);
-}
-
-/* ==========================================================================
    REFERRALS TAB (NEW SECTION)
    ========================================================================== */
 async function loadReferralData() {
@@ -1049,70 +987,13 @@ function copyReferralLink() {
 
 function shareReferralLink() {
     const url = document.getElementById('referral-link-input').value;
-    const text = "💰 Join TaskHub Pro today and start earning rewards for completing simple tasks and surveys! Instant payouts!";
+    const text = "💰 Join TaskHub Pro today and start earning rewards for completing simple tasks! Instant payouts!";
     const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
     
     if (WebApp) {
         WebApp.openTelegramLink(tgShareUrl);
     } else {
         window.open(tgShareUrl, '_blank');
-    }
-}
-
-/* ==========================================================================
-   REWARDS / ACHIEVEMENTS
-   ========================================================================== */
-async function loadAchievements() {
-    const milestones = [
-        { id: 'first_task', name: 'First Task', icon: '🌟', reward: 100, desc: 'Complete 1 task', check: (s) => s.completions >= 1 },
-        { id: 'streak_3', name: '3-Day Streak', icon: '🔥', reward: 250, desc: 'Reach 3 days login streak', check: (s) => s.streak >= 3 },
-        { id: 'first_survey', name: 'First Survey', icon: '📝', reward: 350, desc: 'Complete first research survey', check: (s) => s.completions >= 2 }, 
-        { id: 'refer_1', name: 'First Refer', icon: '🤝', reward: 500, desc: 'Invite 1 active referral', check: (s) => s.completions >= 3 },
-        { id: 'high_earner', name: 'Level Up', icon: '⚡', reward: 1000, desc: 'Reach Account Level 2+', check: (s) => s.level >= 2 },
-        { id: 'pro_achiever', name: 'Pro Earner', icon: '👑', reward: 2500, desc: 'Earn a total balance of 2500+ Coins', check: (s) => s.balance >= 2500 }
-    ];
-
-    const unlockedContainer = document.getElementById('achievements-unlocked-container');
-    const lockedContainer = document.getElementById('achievements-locked-container');
-    
-    if (!unlockedContainer || !lockedContainer) return;
-
-    unlockedContainer.innerHTML = '';
-    lockedContainer.innerHTML = '';
-
-    // Calculate dynamic ranks based on coins
-    const totalEarnings = userState.balance;
-    let userRank = '#247';
-    if (totalEarnings > 10000) userRank = '#12';
-    else if (totalEarnings > 5000) userRank = '#48';
-    else if (totalEarnings > 2500) userRank = '#87';
-    else if (totalEarnings > 1000) userRank = '#156';
-    
-    document.getElementById('rewards-rank').innerText = userRank;
-
-    let unlockedCount = 0;
-
-    milestones.forEach(m => {
-        const isEligible = m.check(userState);
-        const div = document.createElement('div');
-        div.className = `achievement-item ${isEligible ? '' : 'achievement-locked'}`;
-        div.innerHTML = `
-            <div class="achievement-icon">${m.icon}</div>
-            <div class="achievement-name">${m.name}</div>
-            <div class="achievement-reward">+${m.reward} Coins</div>
-            <div style="font-size: 7px; color:rgba(255,255,255,0.4); margin-top:2px;">${m.desc}</div>
-        `;
-
-        if (isEligible) {
-            unlockedContainer.appendChild(div);
-            unlockedCount += 1;
-        } else {
-            lockedContainer.appendChild(div);
-        }
-    });
-
-    if (unlockedCount === 0) {
-        unlockedContainer.innerHTML = '<div class="loading-placeholder" style="grid-column: 1/-1;">No milestones unlocked yet. Complete tasks and surveys to unlock rewards!</div>';
     }
 }
 
@@ -1429,13 +1310,12 @@ function setupMockDatabase() {
         localStorage.setItem('th_last_streak_claim', '');
         localStorage.setItem('th_completions_count', '0');
         localStorage.setItem('th_completed_tasks', JSON.stringify([]));
-        localStorage.setItem('th_completed_surveys', JSON.stringify([]));
         localStorage.setItem('th_transactions', JSON.stringify([]));
         localStorage.setItem('th_referrals', JSON.stringify([]));
         localStorage.removeItem('th_last_spin');
     }
 
-    // Removed hardcoded mock tasks and surveys here as per request.
+    // Removed hardcoded mock tasks here as per request.
 }
 
 /* ==========================================================================

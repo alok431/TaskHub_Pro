@@ -203,17 +203,6 @@
                 </div>
             </div>
 
-            <!-- SURVEYS TAB -->
-            <div id="surveys" class="content">
-                <div class="section-title">📊 CPX Research Surveys</div>
-                <div class="featured-desc" style="margin-bottom: 15px; text-align: center;">Complete surveys below to earn huge coin rewards instantly!</div>
-                
-                <div id="cpx-iframe-container" style="width: 100%; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.2);">
-                    <!-- CPX Iframe will be injected here via app.js -->
-                    <div class="loading-placeholder" id="cpx-loading-text">Loading Surveys...</div>
-                </div>
-            </div>
-
             <!-- REFER TAB (NEW SECTION) -->
             <div id="refer" class="content">
                 <div class="featured-card referral-header-card">
@@ -245,26 +234,6 @@
                 <div class="section-title">🤝 Referred Friends</div>
                 <div id="referred-list-container">
                     <div class="no-referrals-msg">You have not referred any friends yet. Invite someone to start earning!</div>
-                </div>
-            </div>
-
-            <!-- REWARDS (ACHIEVEMENTS) TAB -->
-            <div id="achievements" class="content">
-                <div class="bonus-pool">
-                    <div class="pool-title">🏆 Weekly Bonus Pool</div>
-                    <div class="pool-amount">1,000 TON</div>
-                    <div class="pool-desc">Distributed to top 100 earners weekly. You are ranked <span id="rewards-rank">#...</span></div>
-                    <button class="btn-secondary" onclick="switchTab(null, 'home')">Climb Leaderboard →</button>
-                </div>
-
-                <div class="section-title">⭐ Active Milestones</div>
-                <div class="grid-3" id="achievements-unlocked-container">
-                    <!-- Dynamic achievements -->
-                </div>
-
-                <div class="section-title">🔒 Locked Achievements</div>
-                <div class="grid-3" id="achievements-locked-container">
-                    <!-- Dynamic locked achievements -->
                 </div>
             </div>
 
@@ -416,9 +385,7 @@
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab(event, 'home')">🏠<span data-i18n="tabHome">Home</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'tasks')">📋<span data-i18n="tabTasks">Tasks</span></button>
-            <button class="tab-btn" onclick="switchTab(event, 'surveys')">📝<span data-i18n="tabSurveys">Surveys</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'refer')">👥<span data-i18n="tabRefer">Refer</span></button>
-            <button class="tab-btn" onclick="switchTab(event, 'achievements')">⭐<span data-i18n="tabRewards">Rewards</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'wallet')">💳<span data-i18n="tabWallet">Wallet</span></button>
         </div>
         
