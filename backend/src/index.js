@@ -748,6 +748,187 @@ export default {
         });
       }
 
+      /* ==========================================================================
+         WATCH & EARN (Rewarded Ads)
+         ========================================================================== */
+      // Config: users can watch a limited number of rewarded ads per 24h window
+      const WATCH_AD_REWARD = 25;      // coins per completed ad view
+      const WATCH_DAILY_LIMIT = 20;    // max rewarded ads per 24 hours
+
+      // 11. GET /api/watch/status - Remaining ad views for today
+      if (path === '/api/watch/status' && request.method === 'GET') {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: recentWatches } = await supabase
+          .from('transactions')
+          .select('created_at')
+          .eq('user_id', tgUser.telegram_id)
+          .eq('type', 'watch')
+          .gte('created_at', twentyFourHoursAgo);
+
+        const watchedCount = recentWatches ? recentWatches.length : 0;
+        return corsResponse({
+          reward: WATCH_AD_REWARD,
+          daily_limit: WATCH_DAILY_LIMIT,
+          watched_today: watchedCount,
+          remaining: Math.max(0, WATCH_DAILY_LIMIT - watchedCount)
+        });
+      }
+
+      // 12. POST /api/watch/reward - Credit a completed ad view
+      if (path === '/api/watch/reward' && request.method === 'POST') {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: recentWatches } = await supabase
+          .from('transactions')
+          .select('created_at')
+          .eq('user_id', tgUser.telegram_id)
+          .eq('type', 'watch')
+          .gte('created_at', twentyFourHoursAgo);
+
+        const watchedCount = recentWatches ? recentWatches.length : 0;
+        if (watchedCount >= WATCH_DAILY_LIMIT) {
+          return corsResponse({
+            success: false,
+            error: 'Daily watch limit reached. Come back in 24 hours!',
+            remaining: 0
+          }, 400);
+        }
+
+        const { data: userProfile } = await supabase
+          .from('users')
+          .select('balance')
+          .eq('telegram_id', tgUser.telegram_id)
+          .single();
+
+        const newBalance = Number(userProfile.balance) + WATCH_AD_REWARD;
+        await supabase
+          .from('users')
+          .update({ balance: newBalance })
+          .eq('telegram_id', tgUser.telegram_id);
+
+        await supabase.from('transactions').insert({
+          user_id: tgUser.telegram_id,
+          amount: WATCH_AD_REWARD,
+          type: 'watch',
+          description: `Watched a rewarded ad (+${WATCH_AD_REWARD} Coins)`
+        });
+
+        return corsResponse({
+          success: true,
+          reward: WATCH_AD_REWARD,
+          new_balance: newBalance,
+          remaining: Math.max(0, WATCH_DAILY_LIMIT - (watchedCount + 1))
+        });
+      }
+
+      /* ==========================================================================
+         JOIN & EARN (Sponsored Channels)
+         ========================================================================== */
+      // 13. GET /api/channels - List sponsored channels with join status
+      if (path === '/api/channels' && request.method === 'GET') {
+        const { data: channels, error: channelsError } = await supabase
+          .from('channels')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: true });
+        if (channelsError) throw channelsError;
+
+        const { data: joined } = await supabase
+          .from('user_channels')
+          .select('channel_id')
+          .eq('user_id', tgUser.telegram_id);
+
+        const joinedSet = new Set((joined || []).map(j => j.channel_id));
+
+        const result = (channels || []).map(ch => ({
+          ...ch,
+          completed: joinedSet.has(ch.id)
+        }));
+
+        return corsResponse(result);
+      }
+
+      // 14. POST /api/channels/verify - Verify membership & credit reward
+      if (path === '/api/channels/verify' && request.method === 'POST') {
+        const { channelId } = await request.json();
+        if (!channelId) return corsResponse({ error: 'Missing channelId' }, 400);
+
+        // Fetch channel
+        const { data: channel } = await supabase
+          .from('channels')
+          .select('*')
+          .eq('id', channelId)
+          .single();
+        if (!channel) return corsResponse({ error: 'Channel not found' }, 404);
+
+        // Already claimed?
+        const { data: already } = await supabase
+          .from('user_channels')
+          .select('*')
+          .eq('user_id', tgUser.telegram_id)
+          .eq('channel_id', channelId)
+          .single();
+        if (already) return corsResponse({ error: 'Reward already claimed for this channel' }, 400);
+
+        // Verify membership via Telegram Bot API getChatMember (if BOT_TOKEN configured)
+        let isMember = true; // default true when verification is not configured (dev/mock)
+        if (env.BOT_TOKEN && channel.chat_username && !String(tgUser.telegram_id).startsWith('123456')) {
+          try {
+            const tgRes = await fetch(
+              `https://api.telegram.org/bot${env.BOT_TOKEN}/getChatMember?chat_id=${encodeURIComponent(channel.chat_username)}&user_id=${tgUser.telegram_id}`
+            );
+            const tgData = await tgRes.json();
+            if (tgData.ok && tgData.result && tgData.result.status) {
+              const status = tgData.result.status;
+              isMember = ['creator', 'administrator', 'member'].includes(status);
+            } else {
+              isMember = false;
+            }
+          } catch (e) {
+            isMember = false;
+          }
+        }
+
+        if (!isMember) {
+          return corsResponse({
+            success: false,
+            error: 'You have not joined the channel yet. Please join and try again.'
+          }, 400);
+        }
+
+        // Credit reward
+        const { data: userProfile } = await supabase
+          .from('users')
+          .select('balance')
+          .eq('telegram_id', tgUser.telegram_id)
+          .single();
+
+        const reward = Number(channel.reward);
+        const newBalance = Number(userProfile.balance) + reward;
+
+        await supabase.from('user_channels').insert({
+          user_id: tgUser.telegram_id,
+          channel_id: channelId
+        });
+
+        await supabase
+          .from('users')
+          .update({ balance: newBalance })
+          .eq('telegram_id', tgUser.telegram_id);
+
+        await supabase.from('transactions').insert({
+          user_id: tgUser.telegram_id,
+          amount: reward,
+          type: 'channel',
+          description: `Joined channel: ${channel.title}`
+        });
+
+        return corsResponse({
+          success: true,
+          reward,
+          new_balance: newBalance
+        });
+      }
+
       // Fallback
       return corsResponse({ error: `Not Found: ${path} [${request.method}]` }, 404);
 

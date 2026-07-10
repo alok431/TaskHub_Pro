@@ -1730,3 +1730,122 @@ body {
     background: rgba(0, 152, 234, 0.2);
     border-color: #0098EA;
 }
+
+/* ==========================================================================
+   WATCH & EARN
+   ========================================================================== */
+.watch-hero-card { text-align: center; }
+.watch-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+}
+.watch-stat {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+    padding: 10px 6px;
+}
+.watch-stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #10b981;
+    line-height: 1.2;
+}
+.watch-stat-lbl {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+.watch-screen {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+.watch-screen.playing {
+    border-color: #10b981;
+    box-shadow: inset 0 0 30px rgba(16, 185, 129, 0.25);
+}
+.watch-screen-icon { font-size: 40px; }
+.watch-screen.playing .watch-screen-icon { animation: watchPulse 1s ease-in-out infinite; }
+@keyframes watchPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.7; }
+}
+.watch-screen-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+}
+.info-card { display: flex; flex-direction: column; gap: 10px; }
+.info-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+}
+.info-step-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+    color: #10b981;
+}
+
+/* ==========================================================================
+   JOIN & EARN (Channels)
+   ========================================================================== */
+.channel-card { padding: 12px; }
+.channel-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.channel-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 12px;
+    font-size: 22px;
+}
+.channel-info { flex: 1; min-width: 0; }
+.channel-reward {
+    flex-shrink: 0;
+    font-size: 12px !important;
+    font-weight: 800;
+    padding: 4px 8px !important;
+    align-self: flex-start;
+}
+
+/* Light theme overrides */
+.light-theme .watch-stat { background: rgba(16, 185, 129, 0.1); }
+.light-theme .watch-stat-lbl { color: rgba(0, 0, 0, 0.55); }
+.light-theme .watch-screen { background: rgba(0, 0, 0, 0.05); }
+.light-theme .watch-screen-text { color: rgba(0, 0, 0, 0.6); }
+.light-theme .info-step { color: rgba(0, 0, 0, 0.8); }
+.light-theme .channel-icon { background: rgba(16, 185, 129, 0.1); }

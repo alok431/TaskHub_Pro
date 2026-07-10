@@ -237,6 +237,50 @@
                 </div>
             </div>
 
+            <!-- WATCH & EARN TAB -->
+            <div id="watch" class="content">
+                <div class="featured-card watch-hero-card">
+                    <div class="featured-title">📺 Watch & Earn</div>
+                    <div class="featured-desc">Watch short rewarded ads and instantly earn coins. Fresh ads reset every 24 hours!</div>
+                    <div class="watch-stats-row">
+                        <div class="watch-stat">
+                            <div class="watch-stat-val" id="watch-reward-val">+25</div>
+                            <div class="watch-stat-lbl">Coins / Ad</div>
+                        </div>
+                        <div class="watch-stat">
+                            <div class="watch-stat-val" id="watch-remaining-val">--</div>
+                            <div class="watch-stat-lbl">Ads Left Today</div>
+                        </div>
+                    </div>
+                    <div class="watch-screen" id="watch-screen">
+                        <div class="watch-screen-icon" id="watch-screen-icon">🎬</div>
+                        <div class="watch-screen-text" id="watch-screen-text">Tap below to watch an ad</div>
+                    </div>
+                    <button class="btn-primary-wide" id="watch-ad-btn" onclick="startWatchAd()">Watch Ad & Earn →</button>
+                </div>
+
+                <div class="section-title">📈 How Watch & Earn Works</div>
+                <div class="task-card info-card">
+                    <div class="info-step"><span class="info-step-num">1</span> Tap <strong>Watch Ad &amp; Earn</strong> to start a short video.</div>
+                    <div class="info-step"><span class="info-step-num">2</span> Watch the full ad without closing it early.</div>
+                    <div class="info-step"><span class="info-step-num">3</span> Coins are credited instantly to your balance.</div>
+                    <div class="info-step"><span class="info-step-num">4</span> Come back daily — your ad limit resets every 24h.</div>
+                </div>
+            </div>
+
+            <!-- JOIN & EARN TAB -->
+            <div id="join" class="content">
+                <div class="featured-card join-hero-card">
+                    <div class="featured-title">🤝 Join &amp; Earn</div>
+                    <div class="featured-desc">Join sponsored Telegram channels and earn coins. Membership is auto-verified — stay joined to keep your reward!</div>
+                </div>
+
+                <div class="section-title">📢 Sponsored Channels</div>
+                <div id="channels-container">
+                    <div class="loading-placeholder">Loading channels...</div>
+                </div>
+            </div>
+
             <!-- WALLET TAB -->
             <div id="wallet" class="content">
                 <div class="featured-card">
@@ -385,6 +429,8 @@
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab(event, 'home')">🏠<span data-i18n="tabHome">Home</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'tasks')">📋<span data-i18n="tabTasks">Tasks</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'watch')">📺<span data-i18n="tabWatch">Watch</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'join')">🤝<span data-i18n="tabJoin">Join</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'refer')">👥<span data-i18n="tabRefer">Refer</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'wallet')">💳<span data-i18n="tabWallet">Wallet</span></button>
         </div>

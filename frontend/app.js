@@ -166,6 +166,10 @@ async function loadTabContent() {
         updateSpinUI();
     } else if (activeTab === 'tasks') {
         await loadPartnerTasks();
+    } else if (activeTab === 'watch') {
+        await loadWatchStatus();
+    } else if (activeTab === 'join') {
+        await loadChannels();
     } else if (activeTab === 'refer') {
         await loadReferralData();
     } else if (activeTab === 'wallet') {
@@ -906,6 +910,317 @@ async function verifyAndCompleteTask(taskId) {
 // Featured Task trigger
 function startFeaturedTask() {
     alert("You're tracking the Weekly Flash Deal task! Finish all Quick and Partner tasks to satisfy the requirement.");
+}
+
+/* ==========================================================================
+   WATCH & EARN (Rewarded Ads)
+   ========================================================================== */
+const WATCH_MOCK_LIMIT = 20;
+const WATCH_MOCK_REWARD = 25;
+let watchStatus = { reward: WATCH_MOCK_REWARD, daily_limit: WATCH_MOCK_LIMIT, remaining: WATCH_MOCK_LIMIT };
+let isWatchingAd = false;
+
+function getMockWatchHistory() {
+    let str = localStorage.getItem('th_watch_history');
+    let history = str ? JSON.parse(str) : [];
+    const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+    history = history.filter(t => t > twentyFourHoursAgo);
+    localStorage.setItem('th_watch_history', JSON.stringify(history));
+    return history;
+}
+
+async function loadWatchStatus() {
+    if (useMockData) {
+        const history = getMockWatchHistory();
+        watchStatus = {
+            reward: WATCH_MOCK_REWARD,
+            daily_limit: WATCH_MOCK_LIMIT,
+            watched_today: history.length,
+            remaining: Math.max(0, WATCH_MOCK_LIMIT - history.length)
+        };
+    } else {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/watch/status`, {
+                headers: { 'X-Telegram-Init-Data': getAuthHeader() }
+            });
+            if (!res.ok) throw new Error(`Watch status API responded with status ${res.status}`);
+            watchStatus = await res.json();
+        } catch (err) {
+            console.error(err);
+            useMockData = true;
+            return loadWatchStatus();
+        }
+    }
+    renderWatchStatus();
+}
+
+function renderWatchStatus() {
+    const rewardEl = document.getElementById('watch-reward-val');
+    const remainingEl = document.getElementById('watch-remaining-val');
+    const btn = document.getElementById('watch-ad-btn');
+    if (rewardEl) rewardEl.innerText = `+${watchStatus.reward}`;
+    if (remainingEl) remainingEl.innerText = watchStatus.remaining;
+
+    if (btn && !isWatchingAd) {
+        if (watchStatus.remaining <= 0) {
+            btn.disabled = true;
+            btn.innerText = 'Limit Reached — Come Back in 24h';
+        } else {
+            btn.disabled = false;
+            btn.innerText = 'Watch Ad & Earn →';
+        }
+    }
+}
+
+async function startWatchAd() {
+    if (isWatchingAd || watchStatus.remaining <= 0) return;
+
+    isWatchingAd = true;
+    const btn = document.getElementById('watch-ad-btn');
+    const screen = document.getElementById('watch-screen');
+    const icon = document.getElementById('watch-screen-icon');
+    const text = document.getElementById('watch-screen-text');
+
+    if (screen) screen.classList.add('playing');
+    if (icon) icon.innerText = '📺';
+
+    // Simulate a rewarded ad playback with a countdown
+    let secondsLeft = 5;
+    btn.disabled = true;
+    btn.innerText = `Watching Ad... ${secondsLeft}s`;
+    if (text) text.innerText = `Ad playing... ${secondsLeft}s`;
+
+    const timer = setInterval(async () => {
+        secondsLeft -= 1;
+        if (secondsLeft > 0) {
+            btn.innerText = `Watching Ad... ${secondsLeft}s`;
+            if (text) text.innerText = `Ad playing... ${secondsLeft}s`;
+        } else {
+            clearInterval(timer);
+            btn.innerText = 'Crediting reward...';
+            if (text) text.innerText = 'Ad complete!';
+            await creditWatchReward();
+            isWatchingAd = false;
+            if (screen) screen.classList.remove('playing');
+            if (icon) icon.innerText = '🎬';
+            if (text) text.innerText = 'Tap below to watch an ad';
+            renderWatchStatus();
+        }
+    }, 1000);
+}
+
+async function creditWatchReward() {
+    if (useMockData) {
+        const history = getMockWatchHistory();
+        if (history.length >= WATCH_MOCK_LIMIT) {
+            alert('Daily watch limit reached. Come back in 24 hours!');
+            return;
+        }
+        history.push(Date.now());
+        localStorage.setItem('th_watch_history', JSON.stringify(history));
+
+        userState.balance += WATCH_MOCK_REWARD;
+        const mockUser = JSON.parse(localStorage.getItem('th_user'));
+        mockUser.balance = userState.balance;
+        localStorage.setItem('th_user', JSON.stringify(mockUser));
+
+        const mockTxs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
+        mockTxs.unshift({
+            id: Math.random().toString(36).substr(2, 9),
+            amount: WATCH_MOCK_REWARD,
+            type: 'watch',
+            description: `Watched a rewarded ad (+${WATCH_MOCK_REWARD} Coins)`,
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
+
+        watchStatus.remaining = Math.max(0, WATCH_MOCK_LIMIT - history.length);
+        alert(`🎉 Reward credited! +${WATCH_MOCK_REWARD} Coins`);
+        updateHeaderStats();
+    } else {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/watch/reward`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Telegram-Init-Data': getAuthHeader()
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                userState.balance = data.new_balance;
+                watchStatus.remaining = data.remaining;
+                alert(`🎉 Reward credited! +${data.reward} Coins`);
+                updateHeaderStats();
+            } else {
+                alert(`${data.error || 'Could not credit reward.'}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Server error, falling back to local mode.');
+            useMockData = true;
+            await creditWatchReward();
+        }
+    }
+}
+
+/* ==========================================================================
+   JOIN & EARN (Sponsored Channels)
+   ========================================================================== */
+function getMockChannels() {
+    return [
+        { id: 'ch_official', title: 'TaskHub Pro Official', description: 'Join our official channel for payout proofs & updates', reward: 200, invite_link: 'https://t.me/taskhub_pro', icon: '💎' },
+        { id: 'ch_airdrops', title: 'Crypto Airdrops Hub', description: 'Daily verified airdrops and earning opportunities', reward: 150, invite_link: 'https://t.me/crypto_airdrops_hub', icon: '🪂' },
+        { id: 'ch_deals', title: 'Earning Deals Zone', description: 'Exclusive high-paying offers and promo codes', reward: 150, invite_link: 'https://t.me/earning_deals_zone', icon: '🔥' },
+        { id: 'ch_ton', title: 'TON Community News', description: 'Latest TON blockchain news and giveaways', reward: 120, invite_link: 'https://t.me/ton_community_news', icon: '🚀' }
+    ];
+}
+
+async function loadChannels() {
+    const container = document.getElementById('channels-container');
+    if (!container) return;
+
+    let channels = [];
+    if (useMockData) {
+        const completedIds = JSON.parse(localStorage.getItem('th_joined_channels') || '[]');
+        channels = getMockChannels().map(ch => ({ ...ch, completed: completedIds.includes(ch.id) }));
+    } else {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/channels`, {
+                headers: { 'X-Telegram-Init-Data': getAuthHeader() }
+            });
+            if (!res.ok) throw new Error(`Channels API responded with status ${res.status}`);
+            channels = await res.json();
+        } catch (err) {
+            console.error(err);
+            useMockData = true;
+            return loadChannels();
+        }
+    }
+
+    container.innerHTML = '';
+    if (channels.length === 0) {
+        container.innerHTML = '<div class="loading-placeholder">No sponsored channels available right now.</div>';
+        return;
+    }
+
+    channels.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'task-card channel-card';
+        div.innerHTML = `
+            <div class="channel-row">
+                <div class="channel-icon">${ch.icon || '📢'}</div>
+                <div class="channel-info">
+                    <div class="task-title">${ch.title}</div>
+                    <div class="task-desc">${ch.description || ''}</div>
+                </div>
+                <span class="reward-tag channel-reward">+${Math.floor(ch.reward)}</span>
+            </div>
+            ${ch.completed
+                ? '<span class="completed-tag">✓ Joined & Claimed</span>'
+                : `<button class="btn-primary" id="btn-channel-${ch.id}" onclick="joinChannel('${ch.id}', '${ch.invite_link}')">Join Channel →</button>`}
+        `;
+        container.appendChild(div);
+    });
+}
+
+function joinChannel(channelId, inviteLink) {
+    // Open the channel invite link
+    if (WebApp && WebApp.openTelegramLink && inviteLink.includes('t.me')) {
+        WebApp.openTelegramLink(inviteLink);
+    } else if (WebApp) {
+        WebApp.openLink(inviteLink);
+    } else {
+        window.open(inviteLink, '_blank');
+    }
+
+    // Set verification timer on the button
+    const btn = document.getElementById(`btn-channel-${channelId}`);
+    if (!btn) return;
+
+    btn.disabled = true;
+    let timeRemaining = 8;
+    btn.innerText = `Verifying in ${timeRemaining}s...`;
+
+    const timer = setInterval(() => {
+        timeRemaining -= 1;
+        if (timeRemaining <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.innerText = 'Verify & Claim Reward';
+            btn.onclick = () => verifyChannelJoin(channelId);
+        } else {
+            btn.innerText = `Verifying in ${timeRemaining}s...`;
+        }
+    }, 1000);
+}
+
+async function verifyChannelJoin(channelId) {
+    const btn = document.getElementById(`btn-channel-${channelId}`);
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Checking membership...';
+    }
+
+    if (useMockData) {
+        const completedIds = JSON.parse(localStorage.getItem('th_joined_channels') || '[]');
+        if (completedIds.includes(channelId)) return;
+
+        const channel = getMockChannels().find(c => c.id === channelId);
+        if (!channel) return;
+
+        completedIds.push(channelId);
+        localStorage.setItem('th_joined_channels', JSON.stringify(completedIds));
+
+        userState.balance += parseFloat(channel.reward);
+        const mockUser = JSON.parse(localStorage.getItem('th_user'));
+        mockUser.balance = userState.balance;
+        localStorage.setItem('th_user', JSON.stringify(mockUser));
+
+        const mockTxs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
+        mockTxs.unshift({
+            id: Math.random().toString(36).substr(2, 9),
+            amount: parseFloat(channel.reward),
+            type: 'channel',
+            description: `Joined channel: ${channel.title}`,
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
+
+        alert(`🎉 Reward claimed! +${Math.floor(channel.reward)} Coins`);
+        updateHeaderStats();
+        loadChannels();
+    } else {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/channels/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Telegram-Init-Data': getAuthHeader()
+                },
+                body: JSON.stringify({ channelId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                userState.balance = data.new_balance;
+                alert(`🎉 Reward claimed! +${Math.floor(data.reward)} Coins`);
+                updateHeaderStats();
+                loadChannels();
+            } else {
+                alert(`${data.error || 'Verification failed.'}`);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Verify & Claim Reward';
+                    btn.onclick = () => verifyChannelJoin(channelId);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Server error, falling back to local mode.');
+            useMockData = true;
+            await verifyChannelJoin(channelId);
+        }
+    }
 }
 
 /* ==========================================================================
@@ -1838,7 +2153,7 @@ async function submitCreateTask() {
    i18n - MULTI-LANGUAGE SYSTEM
    ========================================================================== */
 const languages = {
-    en: { name: "English", flag: "🇬🇧", dict: { tabHome: "Home", tabTasks: "Tasks", tabSurveys: "Surveys", tabRefer: "Refer", tabRewards: "Rewards", tabWallet: "Wallet", selectLanguage: "🌐 Select Language" } },
+    en: { name: "English", flag: "🇬🇧", dict: { tabHome: "Home", tabTasks: "Tasks", tabWatch: "Watch", tabJoin: "Join", tabSurveys: "Surveys", tabRefer: "Refer", tabRewards: "Rewards", tabWallet: "Wallet", selectLanguage: "🌐 Select Language" } },
     ru: { name: "Русский", flag: "🇷🇺", dict: { tabHome: "Главная", tabTasks: "Задания", tabSurveys: "Опросы", tabRefer: "Рефералы", tabRewards: "Награды", tabWallet: "Кошелек", selectLanguage: "🌐 Выберите язык" } },
     es: { name: "Español", flag: "🇪🇸", dict: { tabHome: "Inicio", tabTasks: "Tareas", tabSurveys: "Encuestas", tabRefer: "Referir", tabRewards: "Premios", tabWallet: "Billetera", selectLanguage: "🌐 Seleccionar idioma" } },
     hi: { name: "हिन्दी", flag: "🇮🇳", dict: { tabHome: "होम", tabTasks: "कार्य", tabSurveys: "सर्वेक्षण", tabRefer: "संदर्भ", tabRewards: "इनाम", tabWallet: "बटुआ", selectLanguage: "🌐 भाषा चुनें" } },
