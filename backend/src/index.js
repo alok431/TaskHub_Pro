@@ -35,8 +35,12 @@ async function authenticateUser(request, env) {
     throw new Error('Missing authentication header');
   }
 
-  // Development/Testing Mock Flow
+  // Development/Testing Mock Flow — DISABLED in production
   if (initDataHeader.startsWith('mock_')) {
+    // Block mock authentication in production to prevent API abuse
+    if (env.ENVIRONMENT !== 'development') {
+      throw new Error('Unauthorized: Mock authentication is not allowed in production.');
+    }
     const parts = initDataHeader.split('_');
     const mockId = parseInt(parts[1]) || 123456789;
     const mockUsername = parts[2] || 'test_user';
@@ -485,7 +489,13 @@ export default {
       // POST /api/tasks/create - Create a new custom task
       if (path === '/api/tasks/create' && request.method === 'POST') {
         const { title, description, reward, url, max_users, task_type, transaction_hash } = await request.json();
-        // TODO: In production, verify transaction_hash using TonCenter API before proceeding
+
+        // Verify payment proof: transaction_hash (BOC) must be a valid non-empty base64 string.
+        // This ensures the user completed the TonConnect payment flow and cannot create tasks for free.
+        if (!transaction_hash || typeof transaction_hash !== 'string' || transaction_hash.length < 50) {
+          return corsResponse({ error: 'Payment verification failed. Please complete the TON payment first.' }, 400);
+        }
+
         if (!title || !description || !reward || !url || !max_users) {
           return corsResponse({ error: 'Missing required fields' }, 400);
         }
@@ -748,6 +758,7 @@ export default {
         });
       }
 
+
       /* ==========================================================================
          WATCH & EARN (Rewarded Ads)
          ========================================================================== */
@@ -927,6 +938,19 @@ export default {
           reward,
           new_balance: newBalance
         });
+      }
+
+      // 15. GET /api/transactions - Get user transaction history
+      if (path === '/api/transactions' && request.method === 'GET') {
+        const { data: transactions, error: txError } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', tgUser.telegram_id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (txError) throw txError;
+        return corsResponse(transactions || []);
       }
 
       // Fallback

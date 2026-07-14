@@ -11,3 +11,6 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 # CORS configuration
 CORS_ALLOW_ORIGIN = "*"
+
+# Environment flag — set to "development" only for local testing
+ENVIRONMENT = "production"
