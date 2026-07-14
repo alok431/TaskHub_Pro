@@ -275,32 +275,13 @@
 
             <!-- WATCH & EARN TAB -->
             <div id="watch" class="content">
-                <div class="featured-card watch-hero-card">
-                    <div class="featured-title">📺 Watch & Earn</div>
-                    <div class="featured-desc">Watch short rewarded ads and instantly earn coins. Fresh ads reset every 24 hours!</div>
-                    <div class="watch-stats-row">
-                        <div class="watch-stat">
-                            <div class="watch-stat-val" id="watch-reward-val">+25</div>
-                            <div class="watch-stat-lbl">Gems / Ad</div>
-                        </div>
-                        <div class="watch-stat">
-                            <div class="watch-stat-val" id="watch-remaining-val">--</div>
-                            <div class="watch-stat-lbl">Ads Left Today</div>
-                        </div>
-                    </div>
-                    <div class="watch-screen" id="watch-screen">
-                        <div class="watch-screen-icon" id="watch-screen-icon">🎬</div>
-                        <div class="watch-screen-text" id="watch-screen-text">Tap below to watch an ad</div>
-                    </div>
-                    <button class="btn-primary-wide" id="watch-ad-btn" onclick="startWatchAd()">Watch Ad & Earn →</button>
+                <div class="featured-card" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(249, 115, 22, 0.2)); border-color: rgba(249, 115, 22, 0.5);">
+                    <div class="featured-title" style="color: #f97316;">📺 Premium Ad Zones</div>
+                    <div class="featured-desc">Complete all 10 ads in a block to unlock bonus shards!</div>
                 </div>
 
-                <div class="section-title">📈 How Watch & Earn Works</div>
-                <div class="task-card info-card">
-                    <div class="info-step"><span class="info-step-num">1</span> Tap <strong>Watch Ad &amp; Earn</strong> to start a short video.</div>
-                    <div class="info-step"><span class="info-step-num">2</span> Watch the full ad without closing it early.</div>
-                    <div class="info-step"><span class="info-step-num">3</span> 💎 are credited instantly to your balance.</div>
-                    <div class="info-step"><span class="info-step-num">4</span> Come back daily — your ad limit resets every 24h.</div>
+                <div id="ad-blocks-container" style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+                    <!-- JS will render 5 blocks here -->
                 </div>
             </div>
 

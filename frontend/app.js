@@ -1136,145 +1136,28 @@ function startFeaturedTask() {
 }
 
 /* ==========================================================================
-   WATCH & EARN (Rewarded Ads)
+   WATCH & EARN (Ad Blocks)
    ========================================================================== */
-const WATCH_MOCK_LIMIT = 20;
-const WATCH_MOCK_REWARD = 25;
-let watchStatus = { reward: WATCH_MOCK_REWARD, daily_limit: WATCH_MOCK_LIMIT, remaining: WATCH_MOCK_LIMIT };
-let isWatchingAd = false;
+const TOTAL_BLOCKS = 5;
+const ADS_PER_BLOCK = 10;
+const AD_REWARD = 25;
+const BLOCK_BONUS = 500;
 
-function getMockWatchHistory() {
-    let str = localStorage.getItem('th_watch_history');
-    let history = str ? JSON.parse(str) : [];
-    const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
-    history = history.filter(t => t > twentyFourHoursAgo);
-    localStorage.setItem('th_watch_history', JSON.stringify(history));
-    return history;
+function getAdState() {
+    const saved = localStorage.getItem('th_ad_blocks');
+    if (saved) return JSON.parse(saved);
+    const state = {};
+    for(let b=1; b<=TOTAL_BLOCKS; b++) {
+        state[b] = { watchedAds: [], completed: false };
+    }
+    return state;
+}
+
+function saveAdState(state) {
+    localStorage.setItem('th_ad_blocks', JSON.stringify(state));
 }
 
 async function loadWatchStatus() {
-    if (useMockData) {
-        const history = getMockWatchHistory();
-        watchStatus = {
-            reward: WATCH_MOCK_REWARD,
-            daily_limit: WATCH_MOCK_LIMIT,
-            watched_today: history.length,
-            remaining: Math.max(0, WATCH_MOCK_LIMIT - history.length)
-        };
-    } else {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/watch/status`, {
-                headers: { 'X-Telegram-Init-Data': getAuthHeader() }
-            });
-            if (!res.ok) throw new Error(`Watch status API responded with status ${res.status}`);
-            watchStatus = await res.json();
-        } catch (err) {
-            console.error(err);
-            useMockData = true;
-            return loadWatchStatus();
-        }
-    }
-    renderWatchStatus();
-}
-
-function renderWatchStatus() {
-    const rewardEl = document.getElementById('watch-reward-val');
-    const remainingEl = document.getElementById('watch-remaining-val');
-    const btn = document.getElementById('watch-ad-btn');
-    if (rewardEl) rewardEl.innerText = `+${watchStatus.reward}`;
-    if (remainingEl) remainingEl.innerText = watchStatus.remaining;
-
-    if (btn && !isWatchingAd) {
-        if (watchStatus.remaining <= 0) {
-            btn.disabled = true;
-            btn.innerText = 'Limit Reached — Come Back in 24h';
-        } else {
-            btn.disabled = false;
-            btn.innerText = 'Watch Ad & Earn →';
-        }
-    }
-}
-
-async function startWatchAd() {
-    if (isWatchingAd || watchStatus.remaining <= 0) return;
-
-    isWatchingAd = true;
-    const btn = document.getElementById('watch-ad-btn');
-    const screen = document.getElementById('watch-screen');
-    const icon = document.getElementById('watch-screen-icon');
-    const text = document.getElementById('watch-screen-text');
-
-    if (screen) screen.classList.add('playing');
-    if (icon) icon.innerText = '📺';
-
-    // Simulate a rewarded ad playback with a countdown
-    let secondsLeft = 5;
-    btn.disabled = true;
-    btn.innerText = `Watching Ad... ${secondsLeft}s`;
-    if (text) text.innerText = `Ad playing... ${secondsLeft}s`;
-
-    const timer = setInterval(async () => {
-        secondsLeft -= 1;
-        if (secondsLeft > 0) {
-            btn.innerText = `Watching Ad... ${secondsLeft}s`;
-            if (text) text.innerText = `Ad playing... ${secondsLeft}s`;
-        } else {
-            clearInterval(timer);
-            btn.innerText = 'Crediting reward...';
-            if (text) text.innerText = 'Ad complete!';
-            await creditWatchReward();
-            isWatchingAd = false;
-            if (screen) screen.classList.remove('playing');
-            if (icon) icon.innerText = '🎬';
-            if (text) text.innerText = 'Tap below to watch an ad';
-            renderWatchStatus();
-        }
-    }, 1000);
-}
-
-async function creditWatchReward() {
-    if (useMockData) {
-        const history = getMockWatchHistory();
-        if (history.length >= WATCH_MOCK_LIMIT) {
-            alert('Daily watch limit reached. Come back in 24 hours!');
-            return;
-        }
-        history.push(Date.now());
-        localStorage.setItem('th_watch_history', JSON.stringify(history));
-
-        userState.balance += WATCH_MOCK_REWARD;
-        const mockUser = JSON.parse(localStorage.getItem('th_user'));
-        mockUser.balance = userState.balance;
-        localStorage.setItem('th_user', JSON.stringify(mockUser));
-
-        const mockTxs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
-        mockTxs.unshift({
-            id: Math.random().toString(36).substr(2, 9),
-            amount: WATCH_MOCK_REWARD,
-            type: 'watch',
-            description: `Watched a rewarded ad (+${WATCH_MOCK_REWARD} 💎)`,
-            created_at: new Date().toISOString()
-        });
-        localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
-
-        watchStatus.remaining = Math.max(0, WATCH_MOCK_LIMIT - history.length);
-        alert(`🎉 Reward credited! +${WATCH_MOCK_REWARD} 💎`);
-        updateHeaderStats();
-    } else {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/watch/reward`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Telegram-Init-Data': getAuthHeader()
-                }
-            });
-            const data = await res.json();
-            if (data.success) {
-                userState.balance = data.new_balance;
-                watchStatus.remaining = data.remaining;
-                alert(`🎉 Reward credited! +${data.reward} 💎`);
-                updateHeaderStats();
             } else {
                 alert(`${data.error || 'Could not credit reward.'}`);
             }
