@@ -2540,3 +2540,71 @@ function tttCheckWin() {
         return;
     }
 }
+
+// --- LUCKY CHEST LOGIC ---
+let chestOpened = false;
+
+function openLuckyChestGame() {
+    chestOpened = false;
+    const modalTitle = document.getElementById('game-modal-title');
+    const modalBody = document.getElementById('game-modal-body');
+    
+    modalTitle.innerHTML = '🧰 Lucky Chest';
+    
+    // Build Game UI using the 3D images
+    modalBody.innerHTML = `
+        <div style="text-align: center; width: 100%;">
+            <p style="font-size: 14px; font-weight: 600; margin-bottom: 20px;">Pick a Chest to Reveal Your Prize!</p>
+            <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                <div onclick="openSingleChest(this, 1)" style="cursor: pointer; transition: 0.2s;" class="chest-item">
+                    <img src="img_chest_card.jpg" style="width: 80px; height: 80px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: none;">
+                </div>
+                <div onclick="openSingleChest(this, 2)" style="cursor: pointer; transition: 0.2s;" class="chest-item">
+                    <img src="img_chest_card.jpg" style="width: 80px; height: 80px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: none;">
+                </div>
+                <div onclick="openSingleChest(this, 3)" style="cursor: pointer; transition: 0.2s;" class="chest-item">
+                    <img src="img_chest_card.jpg" style="width: 80px; height: 80px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: none;">
+                </div>
+            </div>
+            <div id="chest-result" style="font-size: 16px; font-weight: bold; margin-top: 20px; min-height: 24px;"></div>
+        </div>
+    `;
+    
+    document.getElementById('game-modal').classList.add('active');
+}
+
+function openSingleChest(el, chestId) {
+    if (chestOpened) return;
+    chestOpened = true;
+    
+    el.style.transform = "scale(1.15)";
+    el.style.filter = "brightness(1.5)";
+    
+    document.getElementById('chest-result').innerText = 'Opening...';
+    
+    setTimeout(() => {
+        const r = Math.random();
+        let amount = 5;
+        if (r > 0.95) amount = 100;
+        else if (r > 0.8) amount = 50;
+        else if (r > 0.5) amount = 20;
+        else if (r > 0.2) amount = 15;
+        else amount = 10;
+        
+        el.innerHTML = '<div style="font-size: 60px;">🎉</div>';
+        el.style.filter = "none";
+        
+        document.getElementById('chest-result').innerHTML = `<span style="color: #10b981;">You found +${amount} 💎!</span>`;
+        
+        document.querySelectorAll('.chest-item').forEach(chest => {
+            if (chest !== el) chest.style.opacity = '0.3';
+        });
+        
+        awardGameReward(amount, 'Lucky Chest');
+        
+        setTimeout(() => {
+            document.getElementById('chest-result').innerHTML += '<br><button class="btn-primary" onclick="openLuckyChestGame()" style="margin-top: 15px; font-size: 12px; padding: 8px 16px;">Play Again</button>';
+        }, 1000);
+        
+    }, 1000);
+}
