@@ -286,7 +286,7 @@ async function loadUserProfile() {
 
 // Update Header elements
 function updateHeaderStats() {
-    document.getElementById('stat-balance').innerText = `${Math.floor(userState.balance)} Gems`;
+    document.getElementById('stat-balance').innerText = `${Math.floor(userState.balance)} 💎`;
     document.getElementById('stat-completed').innerText = userState.completions;
     document.getElementById('stat-streak').innerText = `${userState.streak}d`;
     
@@ -311,7 +311,7 @@ function updateHeaderStats() {
     const dropdownLevelVal = document.getElementById('dropdown-level-val');
     
     if (dropdownIdVal) dropdownIdVal.innerText = userState.telegram_id || '-';
-    if (dropdownBalanceVal) dropdownBalanceVal.innerText = `${Math.floor(userState.balance)} Gems`;
+    if (dropdownBalanceVal) dropdownBalanceVal.innerText = `${Math.floor(userState.balance)} 💎`;
     if (dropdownCompletedVal) dropdownCompletedVal.innerText = userState.completions;
     if (dropdownStreakVal) dropdownStreakVal.innerText = `${userState.streak}d`;
     if (dropdownLevelVal) dropdownLevelVal.innerText = `LEVEL ${userState.level}`;
@@ -452,7 +452,7 @@ function updateStreakUI() {
         claimBtn.innerText = 'Claimed Today';
     } else {
         claimBtn.disabled = false;
-        claimBtn.innerText = `Claim Day ${currentDayInCycle} Reward (+${currentDayInCycle * 50} Gems)`;
+        claimBtn.innerText = `Claim Day ${currentDayInCycle} Reward (+${currentDayInCycle * 50} 💎)`;
     }
 }
 
@@ -558,12 +558,12 @@ async function triggerSpin() {
                 id: Math.random().toString(36).substr(2, 9),
                 amount: prize,
                 type: 'spin',
-                description: `Won ${prize} Gems on Daily Lucky Spin`,
+                description: `Won ${prize} 💎 on Daily Lucky Spin`,
                 created_at: new Date().toISOString()
             });
             localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-            alert(`🎉 Congratulations! You won ${prize} Gems!`);
+            alert(`🎉 Congratulations! You won ${prize} 💎!`);
             
             updateHeaderStats();
             updateSpinUI();
@@ -587,7 +587,7 @@ async function triggerSpin() {
                     const icons = { 20: '🎟️', 50: '💰', 100: '💵', 250: '💎', 500: '👑', 1700: '🎰' };
                     wheel.innerText = icons[data.reward] || '💎';
 
-                    alert(`🎉 Congratulations! You won ${data.reward} Gems!`);
+                    alert(`🎉 Congratulations! You won ${data.reward} 💎!`);
                 } else {
                     alert(`Error: ${data.error}`);
                 }
@@ -653,12 +653,12 @@ async function claimDailyStreak() {
             id: Math.random().toString(36).substr(2, 9),
             amount: streakBonus,
             type: 'streak',
-            description: `Daily login streak Day ${userState.streak} bonus (${streakBonus} Gems)`,
+            description: `Daily login streak Day ${userState.streak} bonus (${streakBonus} 💎)`,
             created_at: now.toISOString()
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-        alert(`🔥 Streak Claimed! Earned ${streakBonus} Gems (Day ${userState.streak})`);
+        alert(`🔥 Streak Claimed! Earned ${streakBonus} 💎 (Day ${userState.streak})`);
         
         updateHeaderStats();
     } else {
@@ -673,7 +673,7 @@ async function claimDailyStreak() {
                 userState.streak = data.streak;
                 userState.claimedStreakToday = true;
                 userState.lastStreakClaim = data.last_streak_claim;
-                alert(`🔥 Streak Claimed! Earned ${data.reward} Gems (Day ${data.streak})`);
+                alert(`🔥 Streak Claimed! Earned ${data.reward} 💎 (Day ${data.streak})`);
             } else {
                 alert(data.error || 'Could not claim daily streak.');
             }
@@ -741,7 +741,7 @@ async function loadQuickTasks() {
                     <div class="task-desc">${task.description}</div>
                 </div>
             </div>
-            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn ${Math.floor(task.reward)} Gems</span>`}
+            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn ${Math.floor(task.reward)} 💎</span>`}
             ${task.completed ? '' : `<button class="btn-primary" id="btn-task-${task.id}" onclick="startTask('${task.id}', '${task.url}')">Start Now →</button>`}
         `;
         container.appendChild(div);
@@ -797,7 +797,7 @@ async function loadPartnerTasks() {
                     <div class="task-desc">${task.description}</div>
                 </div>
             </div>
-            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn ${Math.floor(task.reward)} Gems</span>`}
+            ${task.completed ? '<span class="completed-tag">✓ Completed</span>' : `<span class="reward-tag">Earn ${Math.floor(task.reward)} 💎</span>`}
             ${task.completed ? '' : `<button class="btn-primary" id="btn-task-${task.id}" onclick="startTask('${task.id}', '${task.url}')">Subscribe / Follow →</button>`}
         `;
         container.appendChild(div);
@@ -873,7 +873,7 @@ async function verifyAndCompleteTask(taskId) {
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-        alert(`✅ Task Verified! Earned ${Math.floor(parseFloat(task.reward))} Gems!`);
+        alert(`✅ Task Verified! Earned ${Math.floor(parseFloat(task.reward))} 💎!`);
         
         updateHeaderStats();
         loadTabContent();
@@ -892,7 +892,7 @@ async function verifyAndCompleteTask(taskId) {
                 userState.balance = data.new_balance;
                 userState.completions += 1;
                 userState.level = Math.floor(userState.completions / 5) + 1;
-                alert(`✅ Task Verified! Earned ${Math.floor(data.reward)} Gems!`);
+                alert(`✅ Task Verified! Earned ${Math.floor(data.reward)} 💎!`);
             } else {
                 alert(`Error: ${data.error}`);
             }
@@ -1029,13 +1029,13 @@ async function creditWatchReward() {
             id: Math.random().toString(36).substr(2, 9),
             amount: WATCH_MOCK_REWARD,
             type: 'watch',
-            description: `Watched a rewarded ad (+${WATCH_MOCK_REWARD} Gems)`,
+            description: `Watched a rewarded ad (+${WATCH_MOCK_REWARD} 💎)`,
             created_at: new Date().toISOString()
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
         watchStatus.remaining = Math.max(0, WATCH_MOCK_LIMIT - history.length);
-        alert(`🎉 Reward credited! +${WATCH_MOCK_REWARD} Gems`);
+        alert(`🎉 Reward credited! +${WATCH_MOCK_REWARD} 💎`);
         updateHeaderStats();
     } else {
         try {
@@ -1050,7 +1050,7 @@ async function creditWatchReward() {
             if (data.success) {
                 userState.balance = data.new_balance;
                 watchStatus.remaining = data.remaining;
-                alert(`🎉 Reward credited! +${data.reward} Gems`);
+                alert(`🎉 Reward credited! +${data.reward} 💎`);
                 updateHeaderStats();
             } else {
                 alert(`${data.error || 'Could not credit reward.'}`);
@@ -1187,7 +1187,7 @@ async function verifyChannelJoin(channelId) {
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-        alert(`🎉 Reward claimed! +${Math.floor(channel.reward)} Gems`);
+        alert(`🎉 Reward claimed! +${Math.floor(channel.reward)} 💎`);
         updateHeaderStats();
         loadChannels();
     } else {
@@ -1203,7 +1203,7 @@ async function verifyChannelJoin(channelId) {
             const data = await res.json();
             if (data.success) {
                 userState.balance = data.new_balance;
-                alert(`🎉 Reward claimed! +${Math.floor(data.reward)} Gems`);
+                alert(`🎉 Reward claimed! +${Math.floor(data.reward)} 💎`);
                 updateHeaderStats();
                 loadChannels();
             } else {
@@ -1257,7 +1257,7 @@ async function loadReferralData() {
 
     // Set stats UI
     document.getElementById('ref-total-count').innerText = stats.referrals.length;
-    document.getElementById('ref-total-earnings').innerText = `${Math.floor(stats.total_earnings)} Gems`;
+    document.getElementById('ref-total-earnings').innerText = `${Math.floor(stats.total_earnings)} 💎`;
 
     // Set Referred List UI
     const container = document.getElementById('referred-list-container');
@@ -1279,7 +1279,7 @@ async function loadReferralData() {
                 <div class="player-name">@${ref.username || 'anonymous'}</div>
                 <div class="player-status">Joined ${joinDate}</div>
             </div>
-            <div class="score-display">+250 Gems</div>
+            <div class="score-display">+250 💎</div>
         `;
         container.appendChild(div);
     });
@@ -1347,7 +1347,7 @@ async function loadTransactions() {
 
     txs.forEach(tx => {
         const isPositive = parseFloat(tx.amount) >= 0;
-        const amountFormatted = isPositive ? `+${Math.floor(parseFloat(tx.amount))} Gems` : `-${Math.floor(Math.abs(parseFloat(tx.amount)))} Gems`;
+        const amountFormatted = isPositive ? `+${Math.floor(parseFloat(tx.amount))} 💎` : `-${Math.floor(Math.abs(parseFloat(tx.amount)))} 💎`;
         const div = document.createElement('div');
         div.className = 'transaction-item';
         const dateStr = new Date(tx.created_at).toLocaleDateString();
@@ -1361,12 +1361,12 @@ async function loadTransactions() {
         container.appendChild(div);
     });
 
-    document.getElementById('wallet-balance-display').innerText = `${Math.floor(userState.balance)} Gems`;
+    document.getElementById('wallet-balance-display').innerText = `${Math.floor(userState.balance)} 💎`;
 }
 
 function selectPaymentMethod(method, minLimit) {
     selectedPaymentMethod = method;
-    minWithdrawalAmount = parseFloat(minLimit.replace('Gems', '').trim());
+    minWithdrawalAmount = parseFloat(minLimit.replace('💎', '').replace('Gems', '').trim());
     
     document.querySelectorAll('.payment-card').forEach(card => {
         const text = card.querySelector('.task-title').innerText;
@@ -1422,7 +1422,7 @@ function updateWithdrawalConversion() {
 
 function openWithdrawModal() {
     if (userState.balance < minWithdrawalAmount) {
-        alert(`Minimum withdrawal amount for ${selectedPaymentMethod} is ${minWithdrawalAmount} Gems. Your current balance is ${Math.floor(userState.balance)} Gems.`);
+        alert(`Minimum withdrawal amount for ${selectedPaymentMethod} is ${minWithdrawalAmount} 💎. Your current balance is ${Math.floor(userState.balance)} 💎.`);
         return;
     }
     
@@ -1440,7 +1440,7 @@ async function submitWithdrawal() {
     const accountVal = document.getElementById('withdraw-account').value.trim();
 
     if (isNaN(amountVal) || amountVal < minWithdrawalAmount) {
-        alert(`Please enter a valid amount (minimum ${minWithdrawalAmount} Gems)`);
+        alert(`Please enter a valid amount (minimum ${minWithdrawalAmount} 💎)`);
         return;
     }
 
@@ -1483,7 +1483,7 @@ async function submitWithdrawal() {
             payoutToken = "USDT";
         }
 
-        alert(`💸 Withdrawal Request Submitted!\nAmount: ${amountVal} Gems (Equivalent to ${payoutAmount} ${payoutToken})\nProcessing time: up to 24 hours.`);
+        alert(`💸 Withdrawal Request Submitted!\nAmount: ${amountVal} 💎 (Equivalent to ${payoutAmount} ${payoutToken})\nProcessing time: up to 24 hours.`);
         closeWithdrawModal();
         updateHeaderStats();
         loadTabContent();
@@ -1580,7 +1580,7 @@ async function loadLeaderboard() {
                 <div class="player-name">${leader.first_name} (@${leader.username})</div>
                 <div class="player-status">Active earner</div>
             </div>
-            <div class="score-display">${Math.floor(leader.balance)} Gems</div>
+            <div class="score-display">${Math.floor(leader.balance)} 💎</div>
         `;
         container.appendChild(div);
     });
@@ -1733,7 +1733,7 @@ function processGameResult(wonMiniGame, container, tryAgainFnStr) {
             <div style="text-align: center;">
                 <span style="font-size: 40px;">🎉</span>
                 <h4 style="margin: 10px 0 4px; color: #10b981; font-size: 14px;">You Won!</h4>
-                <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You beat the odds! +${reward} Gems!</p>
+                <p style="font-size: 11px; color: #64748b; margin-bottom: 12px;">You beat the odds! +${reward} 💎!</p>
                 <div style="display: flex; gap: 8px; justify-content: center;">
                     <button class="btn-outline" onclick="closeGameModal()" style="padding: 6px 14px; font-size: 11px; width: auto; margin-top: 0;">Close</button>
                     <button class="btn-primary" onclick="${tryAgainFnStr}" style="padding: 6px 16px; font-size: 11px; width: auto;">Play Again</button>
