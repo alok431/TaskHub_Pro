@@ -664,88 +664,163 @@ function showGiftResult(msg, success) {
 async function triggerSpin() {
     if (!userState.canSpin) return;
 
-    const wheel = document.getElementById('wheel-element');
+    const reel1 = document.getElementById('reel-1');
+    const reel2 = document.getElementById('reel-2');
+    const reel3 = document.getElementById('reel-3');
     const spinBtn = document.getElementById('spin-btn');
+    
+    if (!reel1 || !reel2 || !reel3) {
+        alert("Please refresh the page to load the new slot machine!");
+        return;
+    }
     
     spinBtn.disabled = true;
     spinBtn.innerText = 'Spinning...';
-    wheel.classList.add('spinning-animation');
+    
+    reel1.classList.add('spinning-animation');
+    reel2.classList.add('spinning-animation');
+    reel3.classList.add('spinning-animation');
+
+    const symbols = ['7️⃣', '💎', '🍒', '🍋', '🔔'];
+    
+    let spinInterval = setInterval(() => {
+        reel1.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        reel2.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        reel3.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+    }, 100);
 
     if (useMockData) {
-        // Client-side execution
         setTimeout(() => {
-            wheel.classList.remove('spinning-animation');
+            clearInterval(spinInterval);
+            reel1.classList.remove('spinning-animation');
+            reel2.classList.remove('spinning-animation');
+            reel3.classList.remove('spinning-animation');
             
-            // Random rewards setup (Gems)
-            const rewards = [20, 50, 100, 250, 500, 1700];
-            const items = ['🎟️', '💰', '💵', '💎', '👑', '🎰'];
-            const rollIdx = Math.floor(Math.random() * rewards.length);
-            const prize = rewards[rollIdx];
-            const icon = items[rollIdx];
-            
-            wheel.innerText = icon;
+            const r = Math.random();
+            let finalSymbols = [];
+            let prize = 0;
+            let description = '';
 
-            // Credit Balance
+            if (r > 0.98) {
+                finalSymbols = ['7️⃣', '7️⃣', '7️⃣'];
+                prize = 1000;
+                description = 'Jackpot 777! Won 1000 💎';
+            } else if (r > 0.90) {
+                finalSymbols = ['💎', '💎', '💎'];
+                prize = 800;
+                description = 'Diamond Combo! Won 800 💎';
+            } else if (r > 0.80) {
+                finalSymbols = ['🍒', '🍒', '🍒'];
+                prize = 500;
+                description = 'Cherry Combo! Won 500 💎';
+            } else if (r > 0.60) {
+                finalSymbols = ['🍋', '🍋', '🍋'];
+                prize = 250;
+                description = 'Lemon Combo! Won 250 💎';
+            } else if (r > 0.40) {
+                finalSymbols = ['🔔', '🔔', '🔔'];
+                prize = 100;
+                description = 'Bell Combo! Won 100 💎';
+            } else if (r > 0.15) {
+                const sym = symbols[Math.floor(Math.random() * symbols.length)];
+                let other = symbols[Math.floor(Math.random() * symbols.length)];
+                while(other === sym) other = symbols[Math.floor(Math.random() * symbols.length)];
+                finalSymbols = [sym, sym, other].sort(() => Math.random() - 0.5);
+                prize = 50;
+                description = 'Two of a kind! Won 50 💎';
+            } else {
+                const s = [...symbols].sort(() => Math.random() - 0.5);
+                finalSymbols = [s[0], s[1], s[2]];
+                prize = 10;
+                description = 'Consolation Prize! Won 10 💎';
+            }
+
+            reel1.innerText = finalSymbols[0];
+            reel2.innerText = finalSymbols[1];
+            reel3.innerText = finalSymbols[2];
+
             userState.balance += prize;
             userState.canSpin = false;
             userState.spinCooldown = 24;
             
-            // Save mock data
             let spinHistoryStr = localStorage.getItem('th_spin_history');
             let spinHistory = spinHistoryStr ? JSON.parse(spinHistoryStr) : [];
             spinHistory.push(Date.now());
             localStorage.setItem('th_spin_history', JSON.stringify(spinHistory));
             userState.spins_left = Math.max(0, 5 - spinHistory.length);
-            const mockUser = JSON.parse(localStorage.getItem('th_user'));
+            
+            const mockUser = JSON.parse(localStorage.getItem('th_user') || "{}");
             mockUser.balance = userState.balance;
             localStorage.setItem('th_user', JSON.stringify(mockUser));
 
-            // Log Transaction
-            const mockTxs = JSON.parse(localStorage.getItem('th_transactions'));
+            const mockTxs = JSON.parse(localStorage.getItem('th_transactions') || "[]");
             mockTxs.unshift({
                 id: Math.random().toString(36).substr(2, 9),
                 amount: prize,
                 type: 'spin',
-                description: `Won ${prize} 💎 on Daily Lucky Spin`,
+                description: description,
                 created_at: new Date().toISOString()
             });
             localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
-
-            alert(`🎉 Congratulations! You won ${prize} 💎!`);
             
             updateHeaderStats();
             updateSpinUI();
-        }, 2500);
+            
+            if (prize >= 100) showConfetti();
+            alert(`🎉 ${description}`);
+            
+        }, 2000);
     } else {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/user/spin`, {
+            fetch(`${API_BASE_URL}/api/user/spin`, {
                 method: 'POST',
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
-            });
-            const data = await response.json();
-            
-            setTimeout(() => {
-                wheel.classList.remove('spinning-animation');
-                if (data.success) {
-                    userState.balance = data.new_balance;
-                    userState.canSpin = data.spins_left > 0;
-                    userState.spinCooldown = data.cooldown;
-                    userState.spins_left = data.spins_left;
+            }).then(r => r.json()).then(data => {
+                setTimeout(() => {
+                    clearInterval(spinInterval);
+                    reel1.classList.remove('spinning-animation');
+                    reel2.classList.remove('spinning-animation');
+                    reel3.classList.remove('spinning-animation');
                     
-                    const icons = { 20: '🎟️', 50: '💰', 100: '💵', 250: '💎', 500: '👑', 1700: '🎰' };
-                    wheel.innerText = icons[data.reward] || '💎';
+                    if (data.success) {
+                        userState.balance = data.new_balance;
+                        userState.canSpin = data.spins_left > 0;
+                        userState.spinCooldown = data.cooldown;
+                        userState.spins_left = data.spins_left;
+                        
+                        let finalSymbols = [];
+                        if (data.reward >= 1000) finalSymbols = ['7️⃣', '7️⃣', '7️⃣'];
+                        else if (data.reward >= 800) finalSymbols = ['💎', '💎', '💎'];
+                        else if (data.reward >= 500) finalSymbols = ['🍒', '🍒', '🍒'];
+                        else if (data.reward >= 250) finalSymbols = ['🍋', '🍋', '🍋'];
+                        else if (data.reward >= 100) finalSymbols = ['🔔', '🔔', '🔔'];
+                        else if (data.reward >= 50) {
+                            const sym = symbols[Math.floor(Math.random() * symbols.length)];
+                            let other = symbols[Math.floor(Math.random() * symbols.length)];
+                            while(other === sym) other = symbols[Math.floor(Math.random() * symbols.length)];
+                            finalSymbols = [sym, sym, other].sort(() => Math.random() - 0.5);
+                        } else {
+                            const s = [...symbols].sort(() => Math.random() - 0.5);
+                            finalSymbols = [s[0], s[1], s[2]];
+                        }
+                        
+                        reel1.innerText = finalSymbols[0];
+                        reel2.innerText = finalSymbols[1];
+                        reel3.innerText = finalSymbols[2];
 
-                    alert(`🎉 Congratulations! You won ${data.reward} 💎!`);
-                } else {
-                    alert(`Error: ${data.error}`);
-                }
-                updateHeaderStats();
-                updateSpinUI();
-            }, 2500);
+                        updateHeaderStats();
+                        updateSpinUI();
+                        if (data.reward >= 100) showConfetti();
+                        alert(`🎉 Congratulations! You won ${data.reward} 💎!`);
+                    } else {
+                        alert(`Error: ${data.error}`);
+                        updateSpinUI();
+                    }
+                }, 2000);
+            });
         } catch (err) {
-            alert('Failed to execute spin on server. Switched to mock mode.');
-            useMockData = true;
-            wheel.classList.remove('spinning-animation');
+            clearInterval(spinInterval);
+            alert('Failed to execute spin. Please try again.');
             updateSpinUI();
         }
     }
