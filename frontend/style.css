@@ -1,5 +1,28 @@
 /* TaskHub Pro Premium CSS - Custom Stylesheet */
 
+/* ============================================================
+   GEM EMOJI - Force full opacity & vibrant rendering everywhere
+   ============================================================ */
+.gem-icon {
+    opacity: 1 !important;
+    filter: saturate(2) brightness(1.2) !important;
+    display: inline-block;
+    font-style: normal;
+}
+
+/* Universal fix: any element whose text contains the gem emoji
+   should not inherit semi-transparent color on the emoji glyph */
+.stat-value, .stat-mini .stat-value,
+.wallet-balance, #wallet-balance-display,
+.tx-amount, .score-display,
+.reward-tag, .watch-stat-val,
+.dropdown-stat .stat-val,
+#stat-balance, #ref-total-earnings,
+.streak-day-reward {
+    -webkit-text-fill-color: unset;
+}
+
+
 * {
     margin: 0;
     padding: 0;

@@ -286,7 +286,7 @@ async function loadUserProfile() {
 
 // Update Header elements
 function updateHeaderStats() {
-    document.getElementById('stat-balance').innerText = `${Math.floor(userState.balance)} 💎`;
+    document.getElementById('stat-balance').innerHTML = `${Math.floor(userState.balance)} <span class="gem-icon">💎</span>`;
     document.getElementById('stat-completed').innerText = userState.completions;
     document.getElementById('stat-streak').innerText = `${userState.streak}d`;
     
@@ -311,7 +311,7 @@ function updateHeaderStats() {
     const dropdownLevelVal = document.getElementById('dropdown-level-val');
     
     if (dropdownIdVal) dropdownIdVal.innerText = userState.telegram_id || '-';
-    if (dropdownBalanceVal) dropdownBalanceVal.innerText = `${Math.floor(userState.balance)} 💎`;
+    if (dropdownBalanceVal) dropdownBalanceVal.innerHTML = `${Math.floor(userState.balance)} <span class="gem-icon">💎</span>`;
     if (dropdownCompletedVal) dropdownCompletedVal.innerText = userState.completions;
     if (dropdownStreakVal) dropdownStreakVal.innerText = `${userState.streak}d`;
     if (dropdownLevelVal) dropdownLevelVal.innerText = `LEVEL ${userState.level}`;
@@ -1347,7 +1347,7 @@ async function loadTransactions() {
 
     txs.forEach(tx => {
         const isPositive = parseFloat(tx.amount) >= 0;
-        const amountFormatted = isPositive ? `+${Math.floor(parseFloat(tx.amount))} 💎` : `-${Math.floor(Math.abs(parseFloat(tx.amount)))} 💎`;
+        const amountFormatted = isPositive ? `+${Math.floor(parseFloat(tx.amount))} <span class="gem-icon">💎</span>` : `-${Math.floor(Math.abs(parseFloat(tx.amount)))} <span class="gem-icon">💎</span>`;
         const div = document.createElement('div');
         div.className = 'transaction-item';
         const dateStr = new Date(tx.created_at).toLocaleDateString();
@@ -1361,7 +1361,7 @@ async function loadTransactions() {
         container.appendChild(div);
     });
 
-    document.getElementById('wallet-balance-display').innerText = `${Math.floor(userState.balance)} 💎`;
+    document.getElementById('wallet-balance-display').innerHTML = `${Math.floor(userState.balance)} <span class="gem-icon">💎</span>`;
 }
 
 function selectPaymentMethod(method, minLimit) {
