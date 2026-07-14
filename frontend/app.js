@@ -479,35 +479,183 @@ function updateSpinUI() {
    ========================================================================== */
 function switchTaskTab(viewName) {
     const customView = document.getElementById('custom-tasks-view');
-    const offerwallsView = document.getElementById('offerwalls-view');
-    const btnCustom = document.getElementById('btn-custom-tasks');
-    const btnOfferwalls = document.getElementById('btn-offerwalls');
+    const giftsView   = document.getElementById('gifts-view');
+    const btnCustom   = document.getElementById('btn-custom-tasks');
+    const btnGifts    = document.getElementById('btn-gifts');
 
-    if (!customView || !offerwallsView) return;
+    if (!customView || !giftsView) return;
 
     if (viewName === 'custom') {
         customView.style.display = 'block';
-        offerwallsView.style.display = 'none';
+        giftsView.style.display  = 'none';
         btnCustom.classList.add('active');
-        btnOfferwalls.classList.remove('active');
+        if (btnGifts) btnGifts.classList.remove('active');
     } else {
         customView.style.display = 'none';
-        offerwallsView.style.display = 'block';
+        giftsView.style.display  = 'block';
+        if (btnGifts) btnGifts.classList.add('active');
         btnCustom.classList.remove('active');
-        btnOfferwalls.classList.add('active');
+        initGiftStates();
     }
 }
 
-function openAyetOfferwall() {
-    const placementId = "23460";
-    const uid = userState.telegram_id || "guest";
-    const url = `https://www.ayetstudios.com/offers/web_offerwall/${placementId}?external_identifier=${uid}`;
-    
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-        window.Telegram.WebApp.openLink(url);
+/* ==========================================================================
+   GIFT CENTER
+   ========================================================================== */
+const GIFT_CODES = {
+    'TASKHUB2025': 500,
+    'WELCOME100':  100,
+    'GEMS500':     500,
+    'LAUNCH250':   250,
+    'PROMO1000':   1000
+};
+
+function initGiftStates() {
+    checkGiftCooldown('daily',   24 * 60 * 60 * 1000,  'btn-gift-daily');
+    checkGiftCooldown('weekly',  7 * 24 * 60 * 60 * 1000, 'btn-gift-weekly');
+    checkGiftCondition('levelup', () => userState.level >= 3, 'btn-gift-levelup', 'Requires Level 3');
+    checkGiftCondition('referral', () => {
+        const refs = JSON.parse(localStorage.getItem('th_referrals') || '[]');
+        return refs.length >= 1;
+    }, 'btn-gift-referral', 'Invite 1 friend first');
+}
+
+function checkGiftCooldown(key, cooldownMs, btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const lastClaim = localStorage.getItem(`th_gift_${key}`);
+    const claimed   = JSON.parse(localStorage.getItem(`th_gift_${key}_claimed`) || 'false');
+    if (lastClaim && (Date.now() - parseInt(lastClaim)) < cooldownMs) {
+        const remaining = cooldownMs - (Date.now() - parseInt(lastClaim));
+        const hrs = Math.ceil(remaining / (1000 * 60 * 60));
+        btn.disabled   = true;
+        btn.innerText  = hrs > 24 ? `${Math.ceil(hrs/24)}d left` : `${hrs}h left`;
+        btn.classList.add('gift-claimed');
     } else {
-        window.open(url, '_blank');
+        btn.disabled  = false;
+        btn.innerText = 'Claim';
+        btn.classList.remove('gift-claimed');
     }
+}
+
+function checkGiftCondition(key, conditionFn, btnId, lockedMsg) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const alreadyClaimed = JSON.parse(localStorage.getItem(`th_gift_${key}_claimed`) || 'false');
+    if (alreadyClaimed) {
+        btn.disabled  = true;
+        btn.innerText = '✓ Claimed';
+        btn.classList.add('gift-claimed');
+    } else if (!conditionFn()) {
+        btn.disabled  = true;
+        btn.innerText = lockedMsg;
+        btn.classList.add('gift-locked');
+    } else {
+        btn.disabled  = false;
+        btn.innerText = 'Claim';
+        btn.classList.remove('gift-locked', 'gift-claimed');
+    }
+}
+
+async function claimGift(type, amount, btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn || btn.disabled) return;
+
+    const cooldowns = { daily: 24 * 60 * 60 * 1000, weekly: 7 * 24 * 60 * 60 * 1000 };
+
+    // Cooldown-based gifts (daily / weekly)
+    if (cooldowns[type]) {
+        const last = localStorage.getItem(`th_gift_${type}`);
+        if (last && (Date.now() - parseInt(last)) < cooldowns[type]) {
+            alert('You already claimed this gift. Come back later!');
+            return;
+        }
+        btn.disabled  = true;
+        btn.innerText = 'Claiming...';
+        localStorage.setItem(`th_gift_${type}`, Date.now().toString());
+    }
+
+    // Condition-based gifts (levelup / referral)
+    if (type === 'levelup') {
+        if (userState.level < 3) { alert('Reach Level 3 to claim this gift!'); return; }
+        const already = JSON.parse(localStorage.getItem(`th_gift_levelup_claimed`) || 'false');
+        if (already) { alert('Already claimed!'); return; }
+        localStorage.setItem('th_gift_levelup_claimed', 'true');
+    }
+    if (type === 'referral') {
+        const refs = JSON.parse(localStorage.getItem('th_referrals') || '[]');
+        if (refs.length < 1) { alert('Invite at least 1 friend to claim this gift!'); return; }
+        const already = JSON.parse(localStorage.getItem(`th_gift_referral_claimed`) || 'false');
+        if (already) { alert('Already claimed!'); return; }
+        localStorage.setItem('th_gift_referral_claimed', 'true');
+    }
+
+    // Credit gems
+    userState.balance += amount;
+    updateHeaderStats();
+
+    // Save to mock DB
+    const mockUser = JSON.parse(localStorage.getItem('th_user') || '{}');
+    if (mockUser) { mockUser.balance = userState.balance; localStorage.setItem('th_user', JSON.stringify(mockUser)); }
+
+    // Log transaction
+    const txs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
+    txs.unshift({ id: Math.random().toString(36).substr(2,9), amount, type: 'gift', description: `Gift claimed: ${type} gift`, created_at: new Date().toISOString() });
+    localStorage.setItem('th_transactions', JSON.stringify(txs));
+
+    alert(`🎁 Gift Claimed! +${amount} 💎 added to your balance!`);
+
+    // Refresh button states
+    initGiftStates();
+}
+
+async function redeemGiftCode() {
+    const input  = document.getElementById('gift-code-input');
+    const result = document.getElementById('gift-code-result');
+    const code   = (input?.value || '').trim().toUpperCase();
+
+    if (!code) { showGiftResult('Please enter a gift code.', false); return; }
+
+    // Check if already redeemed
+    const redeemedCodes = JSON.parse(localStorage.getItem('th_redeemed_codes') || '[]');
+    if (redeemedCodes.includes(code)) {
+        showGiftResult('❌ This code has already been redeemed.', false);
+        return;
+    }
+
+    const reward = GIFT_CODES[code];
+    if (!reward) {
+        showGiftResult('❌ Invalid gift code. Please check and try again.', false);
+        return;
+    }
+
+    // Credit gems
+    userState.balance += reward;
+    updateHeaderStats();
+
+    // Save redeemed code
+    redeemedCodes.push(code);
+    localStorage.setItem('th_redeemed_codes', JSON.stringify(redeemedCodes));
+
+    // Save balance
+    const mockUser = JSON.parse(localStorage.getItem('th_user') || '{}');
+    if (mockUser) { mockUser.balance = userState.balance; localStorage.setItem('th_user', JSON.stringify(mockUser)); }
+
+    // Log transaction
+    const txs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
+    txs.unshift({ id: Math.random().toString(36).substr(2,9), amount: reward, type: 'gift', description: `Gift code redeemed: ${code}`, created_at: new Date().toISOString() });
+    localStorage.setItem('th_transactions', JSON.stringify(txs));
+
+    showGiftResult(`✅ Code redeemed! +${reward} 💎 added to your balance!`, true);
+    if (input) input.value = '';
+}
+
+function showGiftResult(msg, success) {
+    const result = document.getElementById('gift-code-result');
+    if (!result) return;
+    result.innerText  = msg;
+    result.className  = `gift-code-result ${success ? 'gift-result-success' : 'gift-result-error'}`;
+    setTimeout(() => { result.innerText = ''; result.className = 'gift-code-result'; }, 4000);
 }
 
 /* ==========================================================================

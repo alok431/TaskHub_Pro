@@ -144,7 +144,7 @@
                 <!-- Segmented Control -->
                 <div class="task-segment-control">
                     <button class="segment-btn active" id="btn-custom-tasks" onclick="switchTaskTab('custom')">🎯 Custom Tasks</button>
-                    <button class="segment-btn" id="btn-offerwalls" onclick="switchTaskTab('offerwalls')">🏢 Offerwalls</button>
+                    <button class="segment-btn" id="btn-gifts" onclick="switchTaskTab('gifts')">🎁 Gifts</button>
                 </div>
 
                 <!-- Custom Tasks Container -->
@@ -167,39 +167,73 @@
                     </div>
                 </div>
 
-                <!-- Offerwalls Container (Hidden by default) -->
-                <div id="offerwalls-view" style="display: none;">
-                    <div class="section-title" style="margin-top: 0;">🏢 Premium Offerwalls</div>
-                    <div class="featured-desc" style="margin-bottom: 16px;">Complete high-paying offers from our trusted partners!</div>
-                    
-                    <div class="offerwall-grid">
-                        <div class="offerwall-card" onclick="alert('Torox Offerwall coming soon! Check back later when integration is live.')">
-                            <div class="offerwall-icon">🎮</div>
-                            <div class="offerwall-info">
-                                <h4>Torox</h4>
-                                <p>Earn up to 50k 💎</p>
-                            </div>
-                            <div class="offerwall-arrow">→</div>
+                <!-- Gift Container (Hidden by default) -->
+                <div id="gifts-view" style="display: none;">
+
+                    <!-- Hero Banner -->
+                    <div class="featured-card gift-hero-card" style="margin-bottom: 16px;">
+                        <div class="featured-title">🎁 Gift Center</div>
+                        <div class="featured-desc">Redeem gift codes or claim special daily gifts to earn bonus Gems instantly!</div>
+                    </div>
+
+                    <!-- Gift Code Redemption -->
+                    <div class="section-title" style="margin-top: 0;">🔑 Redeem Gift Code</div>
+                    <div class="task-card gift-code-card">
+                        <div class="gift-code-input-row">
+                            <input type="text" id="gift-code-input" placeholder="Enter your gift code..." autocomplete="off" autocapitalize="characters" />
+                            <button class="btn-primary gift-redeem-btn" onclick="redeemGiftCode()">Redeem</button>
                         </div>
-                        
-                        <div class="offerwall-card" onclick="openAyetOfferwall()">
-                            <div class="offerwall-icon">📱</div>
-                            <div class="offerwall-info">
-                                <h4>AyetStudios</h4>
-                                <p>Earn Millions of 💎</p>
+                        <div id="gift-code-result" class="gift-code-result"></div>
+                    </div>
+
+                    <!-- Special Gifts -->
+                    <div class="section-title">🎀 Claimable Gifts</div>
+                    <div class="gift-cards-grid" id="gift-cards-container">
+                        <!-- Daily Bonus Gift -->
+                        <div class="gift-card" id="gift-daily">
+                            <div class="gift-card-icon">🎁</div>
+                            <div class="gift-card-info">
+                                <div class="gift-card-title">Daily Gift Box</div>
+                                <div class="gift-card-desc">Claim your free gift every 24 hours</div>
+                                <div class="gift-card-reward">+100 💎</div>
                             </div>
-                            <div class="offerwall-arrow">→</div>
+                            <button class="gift-claim-btn" id="btn-gift-daily" onclick="claimGift('daily', 100, 'btn-gift-daily')">Claim</button>
                         </div>
-                        
-                        <div class="offerwall-card" onclick="alert('Lootably Offerwall coming soon! Check back later when integration is live.')">
-                            <div class="offerwall-icon">💎</div>
-                            <div class="offerwall-info">
-                                <h4>Lootably</h4>
-                                <p>Earn up to 25k 💎</p>
+
+                        <!-- Weekly Mega Gift -->
+                        <div class="gift-card gift-card-premium" id="gift-weekly">
+                            <div class="gift-card-icon">🏆</div>
+                            <div class="gift-card-info">
+                                <div class="gift-card-title">Weekly Mega Gift</div>
+                                <div class="gift-card-desc">Big reward every 7 days — don't miss it!</div>
+                                <div class="gift-card-reward">+1,000 💎</div>
                             </div>
-                            <div class="offerwall-arrow">→</div>
+                            <button class="gift-claim-btn gift-claim-premium" id="btn-gift-weekly" onclick="claimGift('weekly', 1000, 'btn-gift-weekly')">Claim</button>
+                        </div>
+
+                        <!-- Level Up Gift -->
+                        <div class="gift-card gift-card-special" id="gift-levelup">
+                            <div class="gift-card-icon">⚡</div>
+                            <div class="gift-card-info">
+                                <div class="gift-card-title">Level Up Bonus</div>
+                                <div class="gift-card-desc">Reach Level 3 to unlock this gift</div>
+                                <div class="gift-card-reward">+500 💎</div>
+                            </div>
+                            <button class="gift-claim-btn" id="btn-gift-levelup" onclick="claimGift('levelup', 500, 'btn-gift-levelup')">Claim</button>
+                        </div>
+
+                        <!-- Referral Gift -->
+                        <div class="gift-card gift-card-special" id="gift-referral">
+                            <div class="gift-card-icon">👥</div>
+                            <div class="gift-card-info">
+                                <div class="gift-card-title">Referral Bonus Gift</div>
+                                <div class="gift-card-desc">Invite 1 friend to unlock this reward</div>
+                                <div class="gift-card-reward">+250 💎</div>
+                            </div>
+                            <button class="gift-claim-btn" id="btn-gift-referral" onclick="claimGift('referral', 250, 'btn-gift-referral')">Claim</button>
                         </div>
                     </div>
+
                 </div>
             </div>
 

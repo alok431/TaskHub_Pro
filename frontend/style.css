@@ -1872,3 +1872,165 @@ body {
 .light-theme .watch-screen-text { color: rgba(0, 0, 0, 0.6); }
 .light-theme .info-step { color: rgba(0, 0, 0, 0.8); }
 .light-theme .channel-icon { background: rgba(16, 185, 129, 0.1); }
+
+/* ==========================================================================
+   GIFT CENTER
+   ========================================================================== */
+
+/* Gift Code Input Row */
+.gift-code-card { padding: 16px !important; }
+.gift-code-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.gift-code-input-row input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(16, 185, 129, 0.35);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.gift-code-input-row input::placeholder { color: rgba(255,255,255,0.35); font-weight: 400; letter-spacing: 0; }
+.gift-code-input-row input:focus { border-color: rgba(16, 185, 129, 0.8); }
+.gift-redeem-btn { width: auto !important; padding: 10px 18px !important; font-size: 13px !important; flex-shrink: 0; }
+
+/* Gift Code Result */
+.gift-code-result {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 18px;
+    transition: all 0.3s ease;
+}
+.gift-result-success { color: #10b981; }
+.gift-result-error   { color: #ef4444; }
+
+/* Gift Cards Grid */
+.gift-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 4px;
+    padding-bottom: 12px;
+}
+
+/* Single Gift Card */
+.gift-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(16,185,129,0.10) 0%, rgba(245,158,11,0.05) 100%);
+    border: 1.5px solid rgba(16,185,129,0.30);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.gift-card:active { transform: scale(0.98); }
+
+/* Premium (weekly) card */
+.gift-card-premium {
+    background: linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.08) 100%);
+    border-color: rgba(251,191,36,0.50);
+    box-shadow: 0 0 16px rgba(251,191,36,0.12);
+}
+
+/* Special (levelup / referral) card */
+.gift-card-special {
+    background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(16,185,129,0.06) 100%);
+    border-color: rgba(99,102,241,0.35);
+}
+
+/* Gift Card Icon */
+.gift-card-icon {
+    font-size: 32px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+/* Gift Card Text */
+.gift-card-info { flex: 1; min-width: 0; }
+.gift-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+}
+.gift-card-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+.gift-card-reward {
+    font-size: 13px;
+    font-weight: 800;
+    color: #10b981;
+}
+.gift-card-premium .gift-card-reward { color: #fbbf24; }
+.gift-card-special  .gift-card-reward { color: #818cf8; }
+
+/* Claim Button */
+.gift-claim-btn {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+}
+.gift-claim-btn:hover:not(:disabled) { transform: scale(1.04); box-shadow: 0 4px 12px rgba(16,185,129,0.40); }
+.gift-claim-btn:active:not(:disabled) { transform: scale(0.96); }
+
+.gift-claim-premium {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.gift-claim-premium:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(251,191,36,0.45); }
+
+/* Claimed / Locked states */
+.gift-claim-btn.gift-claimed,
+.gift-claim-btn.gift-locked {
+    background: rgba(255,255,255,0.08) !important;
+    color: rgba(255,255,255,0.40) !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    transform: none !important;
+    font-size: 11px;
+}
+
+/* Light theme */
+.light-theme .gift-code-input-row input {
+    background: #f8fafc;
+    border-color: rgba(16,185,129,0.4);
+    color: #0f172a;
+}
+.light-theme .gift-card {
+    background: #fff;
+    border-color: rgba(16,185,129,0.25);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.light-theme .gift-card-premium { background: #fffbeb; border-color: rgba(251,191,36,0.45); }
+.light-theme .gift-card-special  { background: #f5f3ff; border-color: rgba(99,102,241,0.35); }
+.light-theme .gift-card-title   { color: #0f172a; }
+.light-theme .gift-card-icon    { background: rgba(16,185,129,0.08); }
+.light-theme .gift-claim-btn.gift-claimed,
+.light-theme .gift-claim-btn.gift-locked { background: #f1f5f9 !important; color: #94a3b8 !important; }
