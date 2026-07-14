@@ -873,7 +873,7 @@ async function verifyAndCompleteTask(taskId) {
         });
         localStorage.setItem('th_transactions', JSON.stringify(mockTxs));
 
-        alert(`✅ Task Verified! Earned $${parseFloat(task.reward).toFixed(2)}`);
+        alert(`✅ Task Verified! Earned ${Math.floor(parseFloat(task.reward))} Coins!`);
         
         updateHeaderStats();
         loadTabContent();
@@ -892,7 +892,7 @@ async function verifyAndCompleteTask(taskId) {
                 userState.balance = data.new_balance;
                 userState.completions += 1;
                 userState.level = Math.floor(userState.completions / 5) + 1;
-                alert(`✅ Task Verified! Earned $${data.reward.toFixed(2)}`);
+                alert(`✅ Task Verified! Earned ${Math.floor(data.reward)} Coins!`);
             } else {
                 alert(`Error: ${data.error}`);
             }
@@ -1324,23 +1324,17 @@ async function loadTransactions() {
         txs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
     } else {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/user`, {
+            // Fetch real transaction history from backend
+            const res = await fetch(`${API_BASE_URL}/api/transactions`, {
                 headers: { 'X-Telegram-Init-Data': getAuthHeader() }
             });
-            const data = await res.json();
-            // Fetch tx history
-            const refRes = await fetch(`${API_BASE_URL}/api/referrals`, {
-                headers: { 'X-Telegram-Init-Data': getAuthHeader() }
-            });
-            
-            // Generate list dynamically from user object in prod or query database
-            // In full app we use transactions table:
-            const txResponse = await fetch(`${API_BASE_URL}/api/health`, { headers: { 'X-Telegram-Init-Data': getAuthHeader() } }); // fallback dummy
-            
-            // To make sure transactions are real, we fetch from our worker API
-            // Let's add a quick query fetch for transactions inside the worker or simulate:
-            txs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
+            if (!res.ok) {
+                throw new Error(`Transactions API responded with status ${res.status}`);
+            }
+            txs = await res.json();
         } catch (e) {
+            console.error('Failed to load transactions from API:', e);
+            useMockData = true;
             txs = JSON.parse(localStorage.getItem('th_transactions') || '[]');
         }
     }
@@ -1489,7 +1483,7 @@ async function submitWithdrawal() {
             payoutToken = "USDT";
         }
 
-        alert(`💸 Withdrawal Request Submitted!nAmount: ${amountVal} Coins (Equivalent to ${payoutAmount} ${payoutToken})nProcessing time: up to 24 hours.`);
+        alert(`💸 Withdrawal Request Submitted!\nAmount: ${amountVal} Coins (Equivalent to ${payoutAmount} ${payoutToken})\nProcessing time: up to 24 hours.`);
         closeWithdrawModal();
         updateHeaderStats();
         loadTabContent();
