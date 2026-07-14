@@ -302,16 +302,25 @@
                 </div>
             </div>
 
-            <!-- JOIN & EARN TAB -->
-            <div id="join" class="content">
+            <!-- GAME TAB -->
+            <div id="game" class="content">
                 <div class="featured-card join-hero-card">
-                    <div class="featured-title">🤝 Join &amp; Earn</div>
-                    <div class="featured-desc">Join sponsored Telegram channels and earn coins. Membership is auto-verified — stay joined to keep your reward!</div>
+                    <div class="featured-title" style="color: #38bdf8;">🎮 Game Zone</div>
+                    <div class="featured-desc">Play fun mini-games to multiply your shards and earn bonus rewards!</div>
                 </div>
 
-                <div class="section-title">📢 Sponsored Channels</div>
-                <div id="channels-container">
-                    <div class="loading-placeholder">Loading channels...</div>
+                <div class="section-title">🕹️ Available Games</div>
+                <div class="grid-2">
+                    <div class="task-card" onclick="openTicTacToe()" style="text-align: center; cursor: pointer; padding: 20px 10px;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">❌⭕</div>
+                        <div class="task-title">Tic Tac Toe</div>
+                        <div class="task-desc">Play & Earn</div>
+                    </div>
+                    <div class="task-card" onclick="alert('Lucky Chest coming soon!')" style="text-align: center; cursor: pointer; padding: 20px 10px;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🧰</div>
+                        <div class="task-title">Lucky Chest</div>
+                        <div class="task-desc">Open & Win</div>
+                    </div>
                 </div>
             </div>
 
@@ -464,7 +473,7 @@
             <button class="tab-btn active" onclick="switchTab(event, 'home')">🏠<span data-i18n="tabHome">Home</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'tasks')">📋<span data-i18n="tabTasks">Tasks</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'watch')">📺<span data-i18n="tabWatch">Watch</span></button>
-            <button class="tab-btn" onclick="switchTab(event, 'join')">🤝<span data-i18n="tabJoin">Join</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'game')">🎮<span data-i18n="tabGame">Play</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'refer')">👥<span data-i18n="tabRefer">Refer</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'wallet')">💳<span data-i18n="tabWallet">Wallet</span></button>
         </div>

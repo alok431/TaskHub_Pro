@@ -2383,3 +2383,160 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 // Since DOMContentLoaded might have fired already depending on script placement
 initLanguage();
+
+// --- TIC TAC TOE LOGIC ---
+let tttBoard = ['', '', '', '', '', '', '', '', ''];
+let tttCurrentPlayer = 'X'; // User is X
+let tttGameActive = false;
+let tttGameMode = 'bot'; // Play against bot
+
+function openTicTacToe() {
+    const modalTitle = document.getElementById('game-modal-title');
+    const modalBody = document.getElementById('game-modal-body');
+    
+    modalTitle.innerHTML = '❌ Tic Tac Toe ⭕';
+    
+    // Build Game UI
+    modalBody.innerHTML = `
+        <div class="ttt-status" id="ttt-status">Your turn (X)</div>
+        <div class="ttt-board" id="ttt-board">
+            <div class="ttt-cell" onclick="tttCellClick(0)" id="cell-0"></div>
+            <div class="ttt-cell" onclick="tttCellClick(1)" id="cell-1"></div>
+            <div class="ttt-cell" onclick="tttCellClick(2)" id="cell-2"></div>
+            <div class="ttt-cell" onclick="tttCellClick(3)" id="cell-3"></div>
+            <div class="ttt-cell" onclick="tttCellClick(4)" id="cell-4"></div>
+            <div class="ttt-cell" onclick="tttCellClick(5)" id="cell-5"></div>
+            <div class="ttt-cell" onclick="tttCellClick(6)" id="cell-6"></div>
+            <div class="ttt-cell" onclick="tttCellClick(7)" id="cell-7"></div>
+            <div class="ttt-cell" onclick="tttCellClick(8)" id="cell-8"></div>
+        </div>
+        <button class="btn-primary" onclick="tttRestart()" style="margin-top:16px;">Restart Game</button>
+    `;
+    
+    document.getElementById('game-modal').classList.add('active');
+    tttRestart();
+}
+
+function closeGameModal() {
+    document.getElementById('game-modal').classList.remove('active');
+}
+
+function tttRestart() {
+    tttBoard = ['', '', '', '', '', '', '', '', ''];
+    tttCurrentPlayer = 'X';
+    tttGameActive = true;
+    document.getElementById('ttt-status').innerText = 'Your turn (X)';
+    document.getElementById('ttt-status').style.color = 'white';
+    
+    for (let i = 0; i < 9; i++) {
+        const cell = document.getElementById(`cell-${i}`);
+        cell.innerHTML = '';
+        cell.className = 'ttt-cell';
+    }
+}
+
+function tttCellClick(index) {
+    if (tttBoard[index] !== '' || !tttGameActive || tttCurrentPlayer !== 'X') return;
+    
+    tttMakeMove(index, 'X');
+    
+    if (tttGameActive) {
+        tttCurrentPlayer = 'O';
+        document.getElementById('ttt-status').innerText = 'Bot is thinking...';
+        setTimeout(tttBotMove, 600);
+    }
+}
+
+function tttMakeMove(index, player) {
+    tttBoard[index] = player;
+    const cell = document.getElementById(`cell-${index}`);
+    cell.innerHTML = player === 'X' ? '<img src="img_x.jpg" style="width: 80%; height: 80%; object-fit: contain; border-radius: 12px; pointer-events: none;">' : '<img src="img_o.jpg" style="width: 80%; height: 80%; object-fit: contain; border-radius: 12px; pointer-events: none;">';
+    cell.classList.add(player === 'X' ? 'x-mark' : 'o-mark');
+    
+    tttCheckWin();
+}
+
+function tttBotMove() {
+    if (!tttGameActive) return;
+    
+    // 1. Try to win
+    let move = tttFindBestMove('O');
+    // 2. Block user
+    if (move === -1) move = tttFindBestMove('X');
+    // 3. Random empty cell
+    if (move === -1) {
+        let emptyCells = [];
+        for (let i = 0; i < 9; i++) {
+            if (tttBoard[i] === '') emptyCells.push(i);
+        }
+        if (emptyCells.length > 0) {
+            move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+    }
+    
+    if (move !== -1) {
+        tttMakeMove(move, 'O');
+        if (tttGameActive) {
+            tttCurrentPlayer = 'X';
+            document.getElementById('ttt-status').innerText = 'Your turn (X)';
+        }
+    }
+}
+
+function tttFindBestMove(player) {
+    const winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
+        [0, 4, 8], [2, 4, 6]             // diagonals
+    ];
+    
+    for (let i = 0; i < winConditions.length; i++) {
+        const [a, b, c] = winConditions[i];
+        if (tttBoard[a] === player && tttBoard[b] === player && tttBoard[c] === '') return c;
+        if (tttBoard[a] === player && tttBoard[c] === player && tttBoard[b] === '') return b;
+        if (tttBoard[b] === player && tttBoard[c] === player && tttBoard[a] === '') return a;
+    }
+    return -1;
+}
+
+function tttCheckWin() {
+    const winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+        [0, 4, 8], [2, 4, 6]             
+    ];
+    
+    let roundWon = false;
+    let winner = null;
+    
+    for (let i = 0; i < 8; i++) {
+        const [a, b, c] = winConditions[i];
+        if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+            roundWon = true;
+            winner = tttBoard[a];
+            break;
+        }
+    }
+    
+    if (roundWon) {
+        tttGameActive = false;
+        const status = document.getElementById('ttt-status');
+        if (winner === 'X') {
+            status.innerText = '🎉 You Won +20 💎!';
+            status.style.color = '#10b981';
+            awardGameReward(20, 'Tic Tac Toe'); // Award shards
+        } else {
+            status.innerText = '💀 Bot Won!';
+            status.style.color = '#f43f5e';
+        }
+        return;
+    }
+    
+    if (!tttBoard.includes('')) {
+        tttGameActive = false;
+        document.getElementById('ttt-status').innerText = '🤝 Draw! +5 💎';
+        document.getElementById('ttt-status').style.color = '#fbbf24';
+        awardGameReward(5, 'Tic Tac Toe'); // Consolation shards
+        return;
+    }
+}

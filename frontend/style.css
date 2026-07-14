@@ -2034,3 +2034,42 @@ body {
 .light-theme .gift-card-icon    { background: rgba(16,185,129,0.08); }
 .light-theme .gift-claim-btn.gift-claimed,
 .light-theme .gift-claim-btn.gift-locked { background: #f1f5f9 !important; color: #94a3b8 !important; }
+
+/* TIC TAC TOE STYLES */
+.ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+}
+.ttt-cell {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(16, 185, 129, 0.4);
+    border-radius: 12px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.ttt-cell:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.2);
+}
+.ttt-cell.x-mark {
+    color: #f43f5e;
+}
+.ttt-cell.o-mark {
+    color: #3b82f6;
+}
+.ttt-status {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    min-height: 20px;
+}
