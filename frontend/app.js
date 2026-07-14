@@ -1167,37 +1167,33 @@ async function loadWatchStatus() {
     for(let b=1; b<=TOTAL_BLOCKS; b++) {
         const block = state[b];
         const progress = Math.floor((block.watchedAds.length / ADS_PER_BLOCK) * 100);
-        
-        let adsHtml = '';
-        for(let a=1; a<=ADS_PER_BLOCK; a++) {
-            const isWatched = block.watchedAds.includes(a);
-            adsHtml += `
-                <div class="ad-item" id="ad-btn-${b}-${a}"
-                     onclick="${isWatched ? '' : `startBlockAd(${b}, ${a})`}"
-                     style="background: ${isWatched ? '#10b981' : 'rgba(255,255,255,0.05)'}; 
-                            border: 1px solid ${isWatched ? '#10b981' : 'rgba(255,255,255,0.1)'};
-                            border-radius: 8px; padding: 12px; text-align: center; cursor: ${isWatched ? 'default' : 'pointer'};
-                            transition: 0.2s;">
-                    <div style="font-size: 24px;">${isWatched ? '✅' : '🎬'}</div>
-                    <div style="font-size: 10px; margin-top: 4px; color: ${isWatched ? '#fff' : '#94a3b8'};">Ad ${a}</div>
-                </div>
-            `;
-        }
+        const nextAdId = block.watchedAds.length + 1;
         
         const blockHtml = `
-            <div class="task-card" style="margin-bottom: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h4 style="margin: 0; color: #fff;">Block ${b}</h4>
-                    <span style="font-size: 12px; color: ${block.completed ? '#10b981' : '#f97316'}; font-weight: bold;">
-                        ${block.completed ? '🎉 Completed (Bonus Claimed)' : `${block.watchedAds.length}/${ADS_PER_BLOCK} Ads`}
-                    </span>
+            <div class="task-card" style="margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 28px;">📺</div>
+                        <div>
+                            <h4 style="margin: 0; color: #fff; font-size: 16px; font-weight: 600;">Premium Ad Block ${b}</h4>
+                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Watch ${ADS_PER_BLOCK} ads for ${BLOCK_BONUS} 💎 bonus</p>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 13px; color: ${block.completed ? '#10b981' : '#f97316'}; font-weight: bold;">
+                            ${block.completed ? 'Completed' : `${block.watchedAds.length}/${ADS_PER_BLOCK} Ads`}
+                        </span>
+                    </div>
                 </div>
-                <div class="progress-bar" style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+                
+                <div class="progress-bar" style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 12px;">
                     <div style="background: ${block.completed ? '#10b981' : '#f97316'}; height: 100%; width: ${progress}%; transition: 0.3s;"></div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
-                    ${adsHtml}
-                </div>
+                
+                ${block.completed 
+                    ? `<button class="btn-primary" style="width: 100%; background: #10b981; opacity: 0.8; cursor: default;" disabled>🎉 Bonus Claimed</button>`
+                    : `<button class="btn-primary" id="ad-btn-${b}-${nextAdId}" onclick="startBlockAd(${b}, ${nextAdId})" style="width: 100%;">▶ Watch Ad ${nextAdId} (+${AD_REWARD} 💎)</button>`
+                }
             </div>
         `;
         container.innerHTML += blockHtml;
